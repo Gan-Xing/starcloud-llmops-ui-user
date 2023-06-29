@@ -23,5 +23,5 @@ jobs:
             - name: Merge and Push to GitLab
               run: |
                   git remote add gitlab https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.ganxing.fun/root/starcloud-llmops-ui-user.git
-                  git pull gitlab main
+                  git pull --allow-unrelated-histories gitlab main
                   git push gitlab main
