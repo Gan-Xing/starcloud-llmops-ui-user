@@ -18,8 +18,10 @@ jobs:
               run: |
                   git config --global user.name 'GanXing'
                   git config --global user.email '599153574@qq.com'
+                  git config pull.rebase false
 
-            - name: Push to GitLab
+            - name: Merge and Push to GitLab
               run: |
                   git remote add gitlab https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.ganxing.fun/root/starcloud-llmops-ui-user.git
-                  git push gitlab main --force
+                  git pull gitlab main
+                  git push gitlab main
