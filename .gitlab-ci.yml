@@ -1,0 +1,9 @@
+push_to_gitlab:
+    stage: deploy
+    script:
+        - git clone --mirror https://GITHUBEKY:x-oauth-basic@github.com/Gan-Xing/starcloud-llmops-ui-user.git
+        - cd starcloud-llmops-ui-user.git
+        - git remote add gitlab https://gitlab.ganxing.fun/root/starcloud-llmops-ui-user.git
+        - git push --mirror gitlab
+    only:
+        - branches
