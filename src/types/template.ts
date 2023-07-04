@@ -4,6 +4,7 @@ export interface Item {
     description: string;
     categories: string[];
     tags: string[];
+    icon: string;
 }
 export interface Execute {
     index: number;
@@ -12,8 +13,10 @@ export interface Execute {
 }
 export interface Details {
     name: string;
+    description: string;
     categories: string[];
     scenes: string[];
+    tags: string[];
     example: string;
     viewCount: string;
     likeCount: string;
@@ -22,4 +25,7 @@ export interface Details {
     version: number;
     installStatus: any;
     workflowConfig: { steps: any[] };
+}
+export interface Anyevent {
+    [key: string]: string | any;
 }

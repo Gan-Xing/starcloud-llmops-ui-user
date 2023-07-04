@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Box,
     Card,
@@ -15,26 +15,30 @@ import {
     OutlinedInput,
     Typography
 } from '@mui/material';
-
+import { Anyevent } from 'types/template';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 const validationSchema = yup.object({
-    name: yup.string().required('Name is required'),
-    topics: yup.string().required('Topics is required')
+    name: yup.string().required('Name is required')
 });
 
-function Basis() {
+function Basis({ name, desc, setValues }: Anyevent) {
+    useEffect(() => {
+        formik.setFieldValue('name', name || '');
+        formik.setFieldValue('desc', desc || '');
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [name]);
     const formik = useFormik({
         initialValues: {
             name: '',
-            desc: '',
-            topics: ''
+            desc: ''
         },
         validationSchema,
-        onSubmit: () => {
-            console.log(111);
-        }
+        onSubmit: () => {}
     });
+    const handleValue = (e: any) => {
+        setValues({ name: e.target.name, value: e.target.value });
+    };
     const [tabValue] = useState(0);
     // const changeTab = (event: React.SyntheticEvent, newValue: number) => {
     //     setTabValue(newValue);
@@ -67,18 +71,18 @@ function Basis() {
                 <Tab label="Model" />
                 <Tab label="Scene" />
             </Tabs> */}
-            {tabValue === 0 && (
-                <form onSubmit={formik.handleSubmit}>
+            {tabValue === 0 && formik && (
+                <form>
                     <TextField
                         fullWidth
                         required
                         InputLabelProps={{ shrink: true }}
-                        value={formik.values.name}
-                        onChange={formik.handleChange}
-                        error={formik.touched.name && Boolean(formik.errors.name)}
-                        helperText={formik.touched.name && formik.errors.name ? formik.errors.name : ' '}
+                        value={formik?.values.name}
+                        onChange={handleValue}
+                        error={formik?.touched.name && Boolean(formik?.errors.name)}
+                        helperText={formik?.touched.name && formik?.errors.name ? formik?.errors.name : ' '}
                         label="Template Name"
-                        id="name"
+                        name="name"
                         placeholder="Please enter template name"
                         variant="outlined"
                     />
@@ -86,36 +90,19 @@ function Basis() {
                         fullWidth
                         InputLabelProps={{ shrink: true }}
                         label="Template Description"
-                        id="desc"
+                        name="desc"
                         value={formik.values.desc}
-                        onChange={formik.handleChange}
+                        onChange={handleValue}
                         placeholder="Please enter template description"
                         helperText={' '}
                         variant="outlined"
                     />
-                    <TextField
-                        value={formik.values.topics}
-                        InputLabelProps={{ shrink: true }}
-                        select
-                        required
-                        name="topics"
-                        error={formik.touched.topics && Boolean(formik.errors.topics)}
-                        helperText={formik.touched.topics && formik.errors.topics ? formik.errors.topics : ' '}
-                        onChange={formik.handleChange}
-                        fullWidth
-                    >
-                        {/* {item.options.map((el: any) => ( */}
-                        <MenuItem value={1}>2</MenuItem>
-                        <MenuItem value={2}>3</MenuItem>
-                        {/* ))} */}
-                    </TextField>
                     <button
                         onClick={() => {
                             formik.handleSubmit();
-                            console.log(formik);
                         }}
                     >
-                        1111
+                        111
                     </button>
                 </form>
             )}
