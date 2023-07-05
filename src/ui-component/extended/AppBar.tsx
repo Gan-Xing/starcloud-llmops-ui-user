@@ -24,7 +24,6 @@ import {
 import Logo from 'ui-component/Logo';
 
 // assets
-import StarIcon from '@mui/icons-material/Star';
 import { IconDashboard, IconHome2 } from '@tabler/icons';
 import MenuIcon from '@mui/icons-material/Menu';
 
@@ -69,7 +68,7 @@ const AppBar = ({ ...others }) => {
                 <Container>
                     <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', py: 2.5, px: `0 !important` }}>
                         <Logo />
-                        <Stack direction="row" sx={{ display: { xs: 'none', sm: 'block' } }} spacing={{ xs: 1.5, md: 2.5 }}>
+                        <Stack direction="row" sx={{ display: { xs: 'block', sm: 'block' } }} spacing={{ xs: 1.5, md: 2.5 }}>
                             <Button
                                 component={RouterLink}
                                 to="/login"
@@ -77,12 +76,11 @@ const AppBar = ({ ...others }) => {
                                 disableElevation
                                 variant="contained"
                                 color="secondary"
-                                startIcon={<StarIcon />}
                             >
                                 创作平台
                             </Button>
                         </Stack>
-                        <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
+                        <Box sx={{ display: { xs: 'none', sm: 'none' } }}>
                             <IconButton color="inherit" onClick={drawerToggler(true)} size="large">
                                 <MenuIcon />
                             </IconButton>
