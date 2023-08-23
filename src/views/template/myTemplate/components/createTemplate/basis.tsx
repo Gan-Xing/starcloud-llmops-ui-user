@@ -1,155 +1,134 @@
-import { useEffect, useState } from 'react';
+import { useImperativeHandle, forwardRef } from 'react';
 import {
-    Box,
     Card,
     TextField,
-    MenuItem,
-    List,
-    ListItem,
-    ListItemText,
-    ListItemSecondaryAction,
     FormControl,
     InputLabel,
     Select,
+    MenuItem,
+    Autocomplete,
     Chip,
     OutlinedInput,
-    Typography
+    Box,
+    Stack,
+    FormHelperText
 } from '@mui/material';
+import { t } from 'hooks/web/useI18n';
 import { Anyevent } from 'types/template';
 import { useFormik } from 'formik';
+import marketStore from 'store/market';
 import * as yup from 'yup';
 const validationSchema = yup.object({
-    name: yup.string().required('Name is required')
+    name: yup.string().required(t('myApp.isrequire')),
+    categories: yup.array().min(1, t('myApp.categoryVaid'))
 });
 
-function Basis({ name, desc, setValues }: Anyevent) {
-    useEffect(() => {
-        formik.setFieldValue('name', name || '');
-        formik.setFieldValue('desc', desc || '');
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [name]);
+const Basis = forwardRef(({ initialValues, setValues }: Anyevent, ref) => {
+    const categoryList = marketStore((state) => state.categoryList);
+    useImperativeHandle(ref, () => ({
+        submit: () => {
+            formik.handleSubmit();
+            return Object.values(formik.errors).length > 0;
+        }
+    }));
     const formik = useFormik({
-        initialValues: {
-            name: '',
-            desc: ''
-        },
+        initialValues,
         validationSchema,
         onSubmit: () => {}
     });
-    const handleValue = (e: any) => {
-        setValues({ name: e.target.name, value: e.target.value });
-    };
-    const [tabValue] = useState(0);
-    // const changeTab = (event: React.SyntheticEvent, newValue: number) => {
-    //     setTabValue(newValue);
-    // };
 
-    //场景
-    const [personName, setPersonName] = useState([]);
-    const names = [
-        'Oliver Hansen',
-        'Van Henry',
-        'April Tucker',
-        'Ralph Hubbard',
-        'Omar Alexander',
-        'Carlos Abbott',
-        'Miriam Wagner',
-        'Bradley Wilkerson',
-        'Virginia Andrews',
-        'Kelly Snyder'
-    ];
-    const handleChange = (event: any) => {
-        const {
-            target: { value }
-        } = event;
-        setPersonName(typeof value === 'string' ? value.split(',') : value);
-    };
     return (
-        <Card sx={{ padding: '16px 0' }}>
-            {/* <Tabs sx={{ marginBottom: 2 }} value={tabValue} onChange={changeTab} aria-label="basic tabs example">
-                <Tab label="Foundation" />
-                <Tab label="Model" />
-                <Tab label="Scene" />
-            </Tabs> */}
-            {tabValue === 0 && formik && (
-                <form>
-                    <TextField
-                        fullWidth
-                        required
-                        InputLabelProps={{ shrink: true }}
-                        value={formik?.values.name}
-                        onChange={handleValue}
-                        error={formik?.touched.name && Boolean(formik?.errors.name)}
-                        helperText={formik?.touched.name && formik?.errors.name ? formik?.errors.name : ' '}
-                        label="Template Name"
-                        name="name"
-                        placeholder="Please enter template name"
-                        variant="outlined"
-                    />
-                    <TextField
-                        fullWidth
-                        InputLabelProps={{ shrink: true }}
-                        label="Template Description"
-                        name="desc"
-                        value={formik.values.desc}
-                        onChange={handleValue}
-                        placeholder="Please enter template description"
-                        helperText={' '}
-                        variant="outlined"
-                    />
-                    <button
-                        onClick={() => {
-                            formik.handleSubmit();
-                        }}
-                    >
-                        111
-                    </button>
-                </form>
-            )}
-            {tabValue === 1 && (
-                <List>
-                    <ListItem>
-                        <ListItemText>模板版本号</ListItemText>
-                        <ListItemSecondaryAction>1</ListItemSecondaryAction>
-                    </ListItem>
-                    <ListItem>
-                        <ListItemText>模板key</ListItemText>
-                        <ListItemSecondaryAction>2</ListItemSecondaryAction>
-                    </ListItem>
-                    <ListItem>
-                        <ListItemText>模板Id</ListItemText>
-                        <ListItemSecondaryAction>mubanId</ListItemSecondaryAction>
-                    </ListItem>
-                </List>
-            )}
-            {tabValue === 2 && (
-                <FormControl fullWidth>
-                    <InputLabel id="demo-multiple-chip-label">Chip</InputLabel>
+        <Card sx={{ overflow: 'visible' }}>
+            <form>
+                <TextField
+                    color="secondary"
+                    fullWidth
+                    required
+                    InputLabelProps={{ shrink: true }}
+                    value={formik?.values.name}
+                    onChange={(e) => {
+                        formik.handleChange(e);
+                        setValues({ name: e.target.name, value: e.target.value });
+                    }}
+                    error={formik?.touched.name && Boolean(formik?.errors.name)}
+                    helperText={formik?.touched.name && formik?.errors.name ? formik?.errors.name : ' '}
+                    label={t('myApp.appName')}
+                    name="name"
+                    variant="outlined"
+                />
+                <TextField
+                    sx={{ mt: 2 }}
+                    color="secondary"
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    multiline
+                    minRows={6}
+                    label={t('myApp.appDesc')}
+                    name="description"
+                    value={formik.values.description}
+                    onChange={(e) => {
+                        formik.handleChange(e);
+                        setValues({ name: e.target.name, value: e.target.value });
+                    }}
+                    variant="outlined"
+                />
+                <FormControl fullWidth sx={{ mt: 4 }} error={formik?.touched.categories && Boolean(formik?.errors.categories)}>
+                    <InputLabel color="secondary" id="categories">
+                        {t('myApp.categary')}
+                    </InputLabel>
                     <Select
-                        labelId="demo-multiple-chip-label"
-                        id="demo-multiple-chip"
+                        labelId="categories"
+                        name="categories"
                         multiple
-                        value={personName}
-                        onChange={handleChange}
+                        color="secondary"
+                        value={formik.values.categories}
+                        onChange={(e) => {
+                            formik.handleChange(e);
+                            setValues({ name: e.target.name, value: e.target.value });
+                        }}
                         input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
                         renderValue={(selected) => (
                             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                {selected.map((value) => (
-                                    <Chip key={value} label={value} />
-                                ))}
+                                {selected.map((value) =>
+                                    categoryList.map((item) => item.code === value && <Chip key={value} label={item.name} />)
+                                )}
                             </Box>
                         )}
+                        label={t('myApp.categary')}
                     >
-                        {names.map((item) => (
-                            <MenuItem key={item} value={item} sx={{ display: 'block' }}>
-                                <Typography variant="h4">{item}</Typography>
-                                <Typography variant="body1">{item}111</Typography>
-                            </MenuItem>
-                        ))}
+                        {categoryList.map(
+                            (item) =>
+                                item.code !== 'ALL' && (
+                                    <MenuItem key={item.code} value={item.code}>
+                                        {item.name}
+                                    </MenuItem>
+                                )
+                        )}
                     </Select>
+                    <FormHelperText>
+                        {formik?.touched.categories && formik?.errors.categories ? formik?.errors.categories : ' '}
+                    </FormHelperText>
                 </FormControl>
-            )}
+                <Stack sx={{ mt: 4 }}>
+                    <Autocomplete
+                        multiple
+                        id="tags-filled"
+                        options={[]}
+                        defaultValue={formik.values.tags}
+                        freeSolo
+                        renderTags={(value: readonly string[], getTagProps) =>
+                            value.map((option: string, index: number) => (
+                                <Chip key={index} label={option} onDelete={getTagProps({ index }).onDelete} />
+                            ))
+                        }
+                        onChange={(e: any, newValue) => {
+                            setValues({ name: 'tags', value: newValue });
+                        }}
+                        renderInput={(params: any) => <TextField name="tags" color="secondary" {...params} label={t('myApp.scense')} />}
+                    />
+                </Stack>
+            </form>
         </Card>
     );
-}
+});
 export default Basis;

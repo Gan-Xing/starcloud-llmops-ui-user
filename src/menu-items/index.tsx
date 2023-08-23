@@ -1,12 +1,12 @@
-import template from './template';
-import { NavItemType } from 'types';
 import { RuoyiMenu } from 'menu-items/ruoyi';
+import { NavItemType } from 'types';
+import template from './template';
 
 const initialMenuItems: { items: NavItemType[] } = {
     items: [template]
 };
 
-const targetIds = ['2164', '2168', '2170', '2171']; // 添加或删除你需要的id
+const targetIds = ['2164', '2168', '2170', '2178', '2171']; // 添加或删除你需要的id
 
 const getMenuItems = () => {
     let menuItems = { ...initialMenuItems };
@@ -43,7 +43,7 @@ const getMenuItems = () => {
     // ];
 
     menuItems.items = [
-        ...ruoyiItemsToAdd
+        ...(getRuoyiMenu || [])
         // ...menuItems.items
     ];
 

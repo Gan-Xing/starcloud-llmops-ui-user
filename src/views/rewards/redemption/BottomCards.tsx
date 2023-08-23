@@ -35,7 +35,7 @@ const BottomCards: React.FC = () => {
             });
             if (response?.inviteCode) {
                 const currentURL = window.location.protocol + '//' + window.location.host;
-                const inviteURL = `${currentURL}/register?q=${response.inviteCode}`; // 创建邀请链接
+                const inviteURL = `${currentURL}/login?q=${response.inviteCode}`; // 创建邀请链接
 
                 navigator.clipboard
                     .writeText(inviteURL)
@@ -86,7 +86,7 @@ const BottomCards: React.FC = () => {
         {
             title: '方法二',
             subtitle: '邀请注册',
-            description: '注册一位送一次，无上限,发送链接邀请注册，每注册一位获取一个权益包',
+            description: '注册一位获取一个权益包，无上限，发送链接邀请注册。每邀请三个获取额外权益包（联系客服）',
             buttonText: '复制链接',
             Icon: PersonAddIcon,
             endText: '送5000字/2张图片',
@@ -116,7 +116,7 @@ const BottomCards: React.FC = () => {
             description: '一键关注，即可马上兑换',
             buttonText: '点击参加',
             Icon: ShareIcon,
-            endText: '送8000字/2张图片',
+            endText: '送5000字/2张图片',
             onClick: handleOpenFollow
         }
     ];

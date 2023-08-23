@@ -1,5 +1,5 @@
-import { config } from 'utils/axios/config';
 import { getAccessToken } from 'utils/auth';
+import { config } from 'utils/axios/config';
 const { base_url } = config;
 export default function fetchRequest(url: string, method: string, body: any, headers = {}) {
     return new Promise((resolve, reject) => {
@@ -9,8 +9,7 @@ export default function fetchRequest(url: string, method: string, body: any, hea
             headers: {
                 ...headers,
                 'Content-Type': 'application/json',
-                Authorization: 'Bearer ' + getAccessToken(),
-                'X-Accel-Buffering': 'no'
+                Authorization: 'Bearer ' + getAccessToken()
             },
             body: body ? JSON.stringify(body) : null
         };
@@ -21,7 +20,7 @@ export default function fetchRequest(url: string, method: string, body: any, hea
         const timer = setTimeout(() => {
             controller.abort(); // 请求超时时中断请求
             reject(new Error('Request timeout'));
-        }, 30000);
+        }, 1000 * 60 * 3);
 
         fetch(base_url + url, { ...options, signal })
             .then((response) => {
@@ -40,3 +39,35 @@ export default function fetchRequest(url: string, method: string, body: any, hea
             });
     });
 }
+
+// const fetchStream = (url: string, params: any) => {
+//     const { onmessage, onclose, ...otherParams } = params;
+
+//     const push = async (controller: any, reader: any) => {
+//         const { value, done } = await reader.read();
+//         if (done) {
+//             controller.close();
+//             onclose?.();
+//         } else {
+//             onmessage?.(new TextDecoder().decode(value));
+//             controller.enqueue(value);
+//             push(controller, reader);
+//         }
+//     };
+//     // 发送请求
+//     return fetch(base_url + url, otherParams)
+//         .then((response) => {
+//             // 以ReadableStream解析数据
+//             const reader = response.body?.getReader();
+//             const stream = new ReadableStream({
+//                 start(controller) {
+//                     push(controller, reader);
+//                 }
+//             });
+//             return stream;
+//         })
+//         .then((stream) =>
+//             new Response(stream, { headers: { 'Content-Type': 'text/html', Authorization: 'Bearer ' + getAccessToken() } }).text()
+//         );
+// };
+// export default fetchStream;

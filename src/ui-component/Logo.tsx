@@ -1,5 +1,5 @@
-import { cloneElement, ReactElement } from 'react';
-import { Box, Typography, useTheme, useScrollTrigger } from '@mui/material';
+import { Box, Typography, useScrollTrigger, useTheme } from '@mui/material';
+import { ReactElement, cloneElement } from 'react';
 interface ElevationScrollProps {
     children: ReactElement;
     window?: Window | Node;
@@ -46,10 +46,9 @@ const Logo = ({ ...others }) => {
                     width="48px"
                     height="48px"
                     viewBox="0 0 48 48"
-                    enable-background="new 0 0 48 48"
+                    enableBackground="new 0 0 48 48"
                     xmlSpace="preserve"
                 >
-                    {' '}
                     <image
                         id="image0"
                         width="48"
@@ -238,15 +237,15 @@ const Logo = ({ ...others }) => {
                     <Typography
                         variant="body1"
                         sx={{
-                            fontSize: '1em',
-                            lineHeight: '1em',
+                            fontSize: '12px',
+                            lineHeight: '14px',
                             textAlign: 'center',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap'
                         }}
                     >
-                        AI让企业更美好
+                        跨境营销创意大师
                     </Typography>
                 </Box>
             </Typography>

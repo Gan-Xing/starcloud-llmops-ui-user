@@ -1,22 +1,23 @@
 import { Link } from 'react-router-dom';
 
 // material-ui
+import { Box, Grid, Stack, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { Box, Divider, Grid, Stack, Typography, useMediaQuery } from '@mui/material';
 
 // project imports
-import AuthWrapper2 from '../AuthWrapper2';
-import AuthCardWrapper from '../AuthCardWrapper';
-import AuthLogin from '../auth-forms/AuthLogin';
+import { AuthSliderProps } from 'types';
 import Logo from 'ui-component/Logo';
-import BackgroundPattern2 from 'ui-component/cards/BackgroundPattern2';
 import AuthFooter from 'ui-component/cards/AuthFooter';
 import AuthSlider from 'ui-component/cards/AuthSlider';
-import { AuthSliderProps } from 'types';
+import BackgroundPattern2 from 'ui-component/cards/BackgroundPattern2';
+import { AuthLoginCardWrapper } from '../AuthCardWrapper';
+import AuthWrapper2 from '../AuthWrapper2';
+import AuthLogin from '../auth-forms/AuthLogin';
+import { useEffect } from 'react';
+import infoStore from 'store/entitlementAction';
 
 // assets
 import imgMain from 'assets/images/auth/img-a2-login.svg';
-import { t } from 'hooks/web/useI18n';
 
 // carousel items
 const items: AuthSliderProps[] = [
@@ -40,7 +41,10 @@ const Login = () => {
     const theme = useTheme();
     const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
     const matchDownMD = useMediaQuery(theme.breakpoints.down('lg'));
-
+    const { setInvitationCode } = infoStore();
+    useEffect(() => {
+        setInvitationCode(null);
+    }, []);
     return (
         <AuthWrapper2>
             <Grid container justifyContent={matchDownSM ? 'center' : 'space-between'} alignItems="center">
@@ -68,46 +72,13 @@ const Login = () => {
                                 <Box sx={{ display: { xs: 'block', md: 'none' } }}>
                                     <Logo />
                                 </Box>
-                                <AuthCardWrapper border={matchDownMD}>
+                                <AuthLoginCardWrapper border={matchDownMD} className="border rounded border-[#e0e0e098] border-solid">
                                     <Grid container spacing={2} justifyContent="center">
-                                        <Grid item>
-                                            <Stack alignItems="center" justifyContent="center" spacing={1}>
-                                                <Typography
-                                                    color={theme.palette.secondary.main}
-                                                    gutterBottom
-                                                    variant={matchDownSM ? 'h3' : 'h2'}
-                                                >
-                                                    {t('auth.login.welcome')}
-                                                </Typography>
-                                                <Typography
-                                                    variant="caption"
-                                                    fontSize="16px"
-                                                    textAlign={matchDownSM ? 'center' : 'inherit'}
-                                                >
-                                                    {t('auth.login.credentials')}
-                                                </Typography>
-                                            </Stack>
-                                        </Grid>
                                         <Grid item xs={12}>
                                             <AuthLogin />
                                         </Grid>
-                                        <Grid item xs={12}>
-                                            <Divider />
-                                        </Grid>
-                                        <Grid item xs={12}>
-                                            <Grid item container direction="column" alignItems="center" xs={12}>
-                                                <Typography
-                                                    component={Link}
-                                                    to="/register"
-                                                    variant="subtitle1"
-                                                    sx={{ textDecoration: 'none' }}
-                                                >
-                                                    {t('auth.login.account')}
-                                                </Typography>
-                                            </Grid>
-                                        </Grid>
                                     </Grid>
-                                </AuthCardWrapper>
+                                </AuthLoginCardWrapper>
                             </Stack>
                         </Grid>
                         <Grid item xs={12} sx={{ m: 3 }}>

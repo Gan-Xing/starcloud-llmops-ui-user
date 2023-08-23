@@ -2,14 +2,16 @@ import { ForwardRefExoticComponent, RefAttributes, forwardRef, useEffect } from 
 import { Link, useLocation } from 'react-router-dom';
 
 // material-ui
-import { useTheme } from '@mui/material/styles';
-import StorefrontIcon from '@mui/icons-material/Storefront';
-import StarsIcon from '@mui/icons-material/Stars';
-import VoicemailIcon from '@mui/icons-material/Voicemail';
-import SelfImprovementIcon from '@mui/icons-material/SelfImprovement';
 import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
+import SelfImprovementIcon from '@mui/icons-material/SelfImprovement';
+import StarsIcon from '@mui/icons-material/Stars';
+import StorefrontIcon from '@mui/icons-material/Storefront';
 import UpgradeIcon from '@mui/icons-material/Upgrade';
+import ImageIcon from '@mui/icons-material/Image';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
+import VoicemailIcon from '@mui/icons-material/Voicemail';
 import { Avatar, ButtonBase, Chip, ListItemButton, ListItemIcon, ListItemText, Typography, useMediaQuery } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 
 // project imports
 import LAYOUT_CONST from 'constant';
@@ -45,9 +47,12 @@ const NavItem = ({ item, level, parentId }: NavItemProps) => {
         VoicemailIcon,
         SelfImprovementIcon,
         CurrencyExchangeIcon,
-        UpgradeIcon
+        UpgradeIcon,
+        ImageIcon,
+        SmartToyIcon
     };
     const Icon = item?.icon ? obj[item.icon] : FiberManualRecordIcon;
+
     const itemIcon = item?.icon ? (
         <Icon
             stroke={1.5}

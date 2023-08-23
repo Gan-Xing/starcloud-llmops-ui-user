@@ -102,41 +102,6 @@
     "large": "大",
     "small": "小"
   },
-  "2login": {
-    "requiredField": "该字段不能为空",
-    "invalidEmail": "无效的邮箱地址",
-    "invalidPhone": "无效的手机号码",
-    "invalidURL": "无效的URL地址",
-    "invalidColor": "无效的颜色格式",
-    "welcome": "欢迎使用本系统",
-    "message": "开箱即用的中后台管理系统",
-    "tenantname": "租户名称",
-    "username": "用户名",
-    "password": "密码",
-    "code": "验证码",
-    "login": "登录",
-    "relogin": "重新登录",
-    "otherLogin": "其他登录方式",
-    "register": "注册",
-    "checkPassword": "确认密码",
-    "remember": "记住我",
-    "hasUser": "已有账号？去登录",
-    "forgetPassword": "忘记密码?",
-    "tenantNamePlaceholder": "请输入租户名称",
-    "usernamePlaceholder": "请输入用户名",
-    "passwordPlaceholder": "请输入密码",
-    "codePlaceholder": "请输入验证码",
-    "mobileTitle": "手机登录",
-    "mobileNumber": "手机号码",
-    "mobileNumberPlaceholder": "请输入手机号码",
-    "backLogin": "返回",
-    "getSmsCode": "获取验证码",
-    "btnMobile": "手机登录",
-    "btnQRCode": "二维码登录",
-    "qrcode": "扫描二维码登录",
-    "btnRegister": "注册",
-    "SmsSendMsg": "验证码已发送"
-  },
   "captcha": {
     "verification": "请完成安全验证",
     "slide": "向右滑动完成验证",
@@ -266,22 +231,6 @@
   "watermark": {
     "watermark": "水印"
   },
-  "2table": {
-    "table": "表格",
-    "index": "序号",
-    "title": "标题",
-    "author": "作者",
-    "createTime": "创建时间",
-    "action": "操作",
-    "pagination": "分页",
-    "reserveIndex": "叠加序号",
-    "restoreIndex": "还原序号",
-    "showSelections": "显示多选",
-    "hiddenSelections": "隐藏多选",
-    "showExpandedRows": "显示展开行",
-    "hiddenExpandedRows": "隐藏展开行",
-    "header": "头部"
-  },
   "action": {
     "create": "新增",
     "add": "新增",
@@ -303,11 +252,6 @@
     "typeUpdate": "字典类型编辑",
     "dataCreate": "字典数据新增",
     "dataUpdate": "字典数据编辑"
-  },
-  "2dialog": {
-    "dialog": "弹窗",
-    "open": "打开",
-    "close": "关闭"
   },
   "sys": {
     "api": {
@@ -421,62 +365,6 @@
       "mobile": "手机号码"
     }
   },
-  "2profile": {
-    "user": {
-      "title": "个人信息",
-      "username": "用户名称",
-      "nickname": "用户昵称",
-      "mobile": "手机号码",
-      "email": "用户邮箱",
-      "dept": "所属部门",
-      "posts": "所属岗位",
-      "roles": "所属角色",
-      "sex": "性别",
-      "man": "男",
-      "woman": "女",
-      "createTime": "创建日期",
-      "upload": "上传头像",
-      "confirm": "确认",
-      "general": "基础设置"
-    },
-    "info": {
-      "title": "基本信息",
-      "basicInfo": "基本资料",
-      "resetPwd": "修改密码",
-      "userSocial": "社交信息"
-    },
-    "rules": {
-      "nickname": "请输入用户昵称",
-      "mail": "请输入邮箱地址",
-      "truemail": "请输入正确的邮箱地址",
-      "phone": "请输入正确的手机号码",
-      "truephone": "请输入正确的手机号码"
-    },
-    "apply": {
-      "name": "应用名称",
-      "category": "分类",
-      "tag": "标签",
-      "recommend": "推荐应用",
-      "instruction": "使用说明",
-      "downLoad": "已下载应用",
-      "more": "More",
-      "self": "我的应用"
-    },
-    "password": {
-      "oldPassword": "旧密码",
-      "newPassword": "新密码",
-      "confirmPassword": "确认密码",
-      "oldPwdMsg": "请输入旧密码",
-      "newPwdMsg": "请输入新密码",
-      "cfPwdMsg": "请输入确认密码",
-      "pwdRules": "长度在 6 到 20 个字符",
-      "diffPwd": "两次输入密码不一致",
-      "changepassword": "修改密码",
-      "currentpassword": "当前密码",
-      "newpassword": "新密码",
-      "confirmpassword": "确认密码"
-    }
-  },
   "cropper": {
     "selectImage": "选择图片",
     "uploadSuccess": "上传成功",
@@ -513,7 +401,15 @@
   "order-details": "订单详细信息",
   "product": "产品",
   "product-review": "产品审核",
-  "chat": "聊天",
+  "chat": {
+    "name": "机器人名称",
+    "recommend": "模版机器人",
+    "recommendDes": "通过模板方便地创建一个机器人",
+    "createRobot": "创建机器人",
+    "createRobotRequire": "机器人名称必填",
+    "typeName": "请填写机器人的名称",
+    "myRobot": "我的机器人"
+  },
   "mail": "邮件",
   "contact": "接触",
   "calendar": "日历",
@@ -625,6 +521,7 @@
   "change": "改变语言",
   "message": "悲楚 坐镇，奉献自若，西里乌斯·杜伊乌斯莫德·临时工与劳动和多尔纳·马尼亚·阿利夸。 尽量不要抽烟，不要因抽烟而锻炼。 他希望在 受到指责，但是痛苦是在 足球比赛中没有产生任何逃脱的痛苦！。 不擅长于圣人的圣杯，只能在因犯罪而告终的罪魁祸首中胜诉。",
   "account-settings": "账号设定",
+  "order-record": "订单记录",
   "logout": "登出",
   "more-items": "更多項目",
   "template": "模板类",
@@ -632,17 +529,17 @@
   "application-analysis": "应用分析",
   "templateMarket": "模板市场",
   "EntitlementCard": {
-    "ppgrades": "权益升级"
+    "ppgrades": "签到得令牌",
+    "ppFreegrades": "签到免费得令牌"
   },
   "apply": {
     "name": "应用名称",
     "category": "分类",
     "tag": "标签",
-    "recommend": "推荐应用",
+    "recommend": "模版应用",
     "instruction": "使用说明",
-    "downLoad": "已下载应用",
-    "more": "More",
-    "self": "我的应用"
+    "self": "我的应用",
+    "AppDesc": "选择一个开始创作"
   },
   "market": {
     "title": "应用市场",
@@ -664,12 +561,41 @@
     "version": "版本",
     "plugLevel": "插件等级",
     "plugVersion": "插件版本",
-    "invitation": "专属邀请链接",
+    "invitation": "扫码发送给好友",
+    "inGive": "邀请有奖",
+    "insucess": "邀请成功就送您和好友每人令牌额度, 奖励无上限",
     "tips": "推荐好友注册，提升权益额度",
     "copy": "点击复制邀请码",
     "error": "当前使用的token不足",
     "welcome": "欢迎您",
-    "place": "搜索AI应用"
+    "place": "搜索AI应用",
+    "ai": "AI 结果",
+    "like": "点赞",
+    "Step": "踩",
+    "copys": "复制",
+    "share": "分享",
+    "words": "个字符",
+    "warning": "请求错误",
+    "modify": "编辑成功",
+    "create": "创建成功",
+    "debug": "调试与预览",
+    "steps": "步骤",
+    "editName": "编辑步骤名称",
+    "addDesc": "点击添加描述",
+    "desc": "编辑",
+    "delete": "删除",
+    "model": "模型变量",
+    "prompt": "提示词",
+    "max_tokens": "最大令牌数",
+    "temperature": "温度",
+    "n": "N",
+    "copyFiend": "复制链接发送给好友",
+    "promptDesc": "提示词用于对 AI 的回复做出一系列指令和约束。可插入变量，例如 {变量KEY}",
+    "varableDesc": "变量将以表单形式让用户在执行前填写,用户填写的表单内容将自动替换提示词中的变量",
+    "addPrompt": "像这样将这个变量添加到提示符中",
+    "copyPrompt": "点击复制变量KEY",
+    "copySuccess": "复制成功",
+    "fields": "点击变量，增加到提示词中"
   },
   "rede": {
     "title": "免费兑换MoFaAI创作权益"
@@ -686,11 +612,12 @@
     "login": {
       "welcome": "嗨！欢迎回来～",
       "credentials": "AI让创作更简单",
-      "account": "立即注册！",
+      "account": "邮箱注册！",
       "signin": "登  录",
       "forgotpassword": "忘记密码？",
       "otherLogin": "其他登录方式",
-      "requirepassword": "在下方填入您的邮箱,我们将向您发送一次性重置密码链接。"
+      "requirepassword": "在下方填入您的邮箱,我们将向您发送一次性重置密码链接。",
+      "wechatLoginDes": "微信扫码 登录即注册"
     },
     "register": {
       "signup": "注册账户",
@@ -698,7 +625,8 @@
       "emailrequired": "邮箱为必填项",
       "passwordrequired": "密码为必填项",
       "successful": "激活链接已发送至邮箱,请前往激活",
-      "tologin": "立即登录！"
+      "tologin": "立即登录！",
+      "checkTreaty": "请同意下方协议&条款"
     },
     "password": {
       "poor": "极弱",
@@ -722,16 +650,73 @@
       "content2": "魔法AI是一个基于人工智能的营销内容创作平台。魔法AI相关网站、服务、产品、应用程序与内容，在《魔法AI用户服务协议》（以下简称“本协议”）中统称为“本服务”。个人用户、授权用户统称为“您”。"
     }
   },
+  "2profile": {
+    "user": {
+      "title": "个人信息",
+      "username": "用户名称",
+      "nickname": "用户昵称",
+      "mobile": "手机号码",
+      "email": "用户邮箱",
+      "dept": "所属部门",
+      "posts": "所属岗位",
+      "roles": "所属角色",
+      "sex": "性别",
+      "man": "男",
+      "woman": "女",
+      "createTime": "创建日期",
+      "upload": "上传头像",
+      "confirm": "确认",
+      "general": "基础设置"
+    },
+    "info": {
+      "title": "基本信息",
+      "basicInfo": "基本资料",
+      "resetPwd": "修改密码",
+      "userSocial": "社交信息"
+    },
+    "rules": {
+      "nickname": "请输入用户昵称",
+      "mail": "请输入邮箱地址",
+      "truemail": "请输入正确的邮箱地址",
+      "phone": "请输入正确的手机号码",
+      "truephone": "请输入正确的手机号码"
+    },
+    "apply": {
+      "name": "应用名称",
+      "category": "分类",
+      "tag": "标签",
+      "recommend": "推荐应用",
+      "instruction": "使用说明",
+      "downLoad": "已下载应用",
+      "more": "More",
+      "self": "我的应用"
+    },
+    "password": {
+      "oldPassword": "旧密码",
+      "newPassword": "新密码",
+      "confirmPassword": "确认密码",
+      "oldPwdMsg": "请输入旧密码",
+      "newPwdMsg": "请输入新密码",
+      "cfPwdMsg": "请输入确认密码",
+      "pwdRules": "长度在 6 到 20 个字符",
+      "diffPwd": "两次输入密码不一致",
+      "changepassword": "修改密码",
+      "currentpassword": "当前密码",
+      "newpassword": "新密码",
+      "confirmpassword": "确认密码"
+    }
+  },
   "user": {
     "username": "用户名称",
     "password": "密码",
     "emailaddress": "电子邮箱",
     "free": "免费",
-    "plus": "普通",
-    "pro": "专业",
+    "plus": "高级",
+    "pro": "团队",
     "令牌": "令牌",
     "图片": "图片",
-    "remaining": "剩余"
+    "remaining": "余",
+    "机器人": "机器人"
   },
   "homepage": {
     "title": {
@@ -791,15 +776,98 @@
     "totalElapsed": "执行总耗时",
     "totalPrice": "执行总话费",
     "status": "执行状态",
-    "createTime": "创建时间"
+    "createTime": "创建时间",
+    "CHAT": "聊天",
+    "COMPLETION": "生成",
+    "BASE_GENERATE_IMAGE": "生成图片",
+    "detail": "详情"
   },
   "generateLog": {
-    "messageTotal": "消息数总数",
-    "usertotal": "用户总数",
+    "messageTotal": "使用次数",
+    "usertotal": "用户满意程度",
     "TimeConsuming": "平均耗时",
-    "tokenTotal": "Tokens总数",
+    "tokenTotal": "字节总数",
     "name": "名称",
     "date": "时间",
     "search": "搜索"
+  },
+  "myApp": {
+    "back": "返回",
+    "save": "保存",
+    "basis": "基础设置",
+    "arrangement": "流程编排",
+    "upload": "应用发布",
+    "isrequire": "App的名称是必填的",
+    "flow": "执行流程",
+    "title": "标题",
+    "desc": "描述",
+    "variable": "变量",
+    "table": "变量",
+    "add": "新增",
+    "field": "变量KEY",
+    "name": "变量名称",
+    "value": "变量默认值",
+    "isShow": "是否显示",
+    "operation": "操作",
+    "type": "类型",
+    "del": "删除变量",
+    "delDesc": "是否确认删除这条数据",
+    "cancel": "取消",
+    "confirm": "确认",
+    "addOption": "新增选项",
+    "edit": "编辑",
+    "input": "输入框",
+    "select": "下拉框",
+    "textarea": "文本框",
+    "execuent": "AI 结果",
+    "responent": "输出格式",
+    "appName": "应用名称",
+    "appDesc": "应用描述",
+    "categary": "类目",
+    "scense": "标签",
+    "stepStyle": "样式配置",
+    "exeLabel": "执行按钮的名称",
+    "categoryVaid": "类目是必填的",
+    "delApp": "删除应用"
+  },
+  "textToImage": {
+    "Enhance": "增强",
+    "Anime": "动漫",
+    "Photographic": "摄影",
+    "Digital Art": "数字艺术",
+    "Comic Book": "漫画风",
+    "Fantasy Art": "奇幻艺术",
+    "Analog Film": "胶片风",
+    "Neon Punk": "霓虹朋克",
+    "Isometric": "等轴投影",
+    "Low Poly": "低多边形",
+    "Origami": "折纸",
+    "Line Art": "线条艺术",
+    "Craft clay": "手工泥塑",
+    "Cinematic": "电影风",
+    "Model 3D": "三维模型",
+    "Pixel Art": "像素艺术"
+  },
+  "voiceStyles": {
+    "affectionate": "深情",
+    "embarrassed": "尴尬",
+    "calm": "平静",
+    "fearful": "害怕",
+    "cheerful": "开心",
+    "disgruntled": "不满",
+    "serious": "严肃",
+    "angry": "愤怒",
+    "sad": "伤心",
+    "narration-relaxed": "轻松叙述",
+    "depressed": "沮丧",
+    "chat": "聊天",
+    "assistant": "助手",
+    "newscast": "新闻播报",
+    "gentle": "温柔",
+    "envious": "嫉妒",
+    "customerservice": "客户服务",
+    "lyrical": "抒情",
+    "poetry-reading": "诗歌朗读",
+    "friendly": "友善"
   }
 }

@@ -1,0 +1,26 @@
+.pcm_menu_m {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+}
+
+.pcm_menu {
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: calc(100vh - 130px);
+}
+
+.pcm_menu_hidden {
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    left: -350px;
+    top: 30px;
+    height: calc(100vh - 130px);
+}

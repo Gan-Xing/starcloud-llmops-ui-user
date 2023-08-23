@@ -11,9 +11,9 @@ import {
     TableContainer,
     TableHead,
     TablePagination,
-    TableSortLabel,
-    TableRow
+    TableRow,
     // Stack
+    TableSortLabel
 } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
 
@@ -22,9 +22,9 @@ import MainCard from 'ui-component/cards/MainCard';
 // import { CSVExport } from 'views/forms/tables/TableExports';
 
 // assets
-import { KeyedObject, ArrangementOrder, EnhancedTableHeadProps } from 'types';
-import { useEffect, useState } from 'react';
 import { getUserBenefitsPage } from 'api/rewards';
+import { Fragment, useEffect, useState } from 'react';
+import { ArrangementOrder, EnhancedTableHeadProps, KeyedObject } from 'types';
 
 type TableEnhancedCreateDataType = {
     benefitsName: string;
@@ -116,7 +116,7 @@ function EnhancedTableHead({ onSelectAllClick, order, orderBy, numSelected, rowC
                 {headCells.map((headCell) => (
                     <TableCell
                         key={headCell.id}
-                        align={headCell.numeric ? 'right' : 'left'}
+                        align={headCell.numeric ? 'right' : 'center'}
                         padding={headCell.disablePadding ? 'none' : 'normal'}
                         sortDirection={orderBy === headCell.id ? order : false}
                         sx={{ pl: 3, whiteSpace: 'nowrap' }} // 加上 white-space: nowrap
@@ -160,8 +160,7 @@ const Record: React.FC<ShareProps> = ({ open, handleClose }) => {
     useEffect(() => {
         const fetchPageData = async () => {
             const pageVO = { pageNo: page + 1, pageSize: rowsPerPage };
-            const encodedPageVO = encodeURIComponent(JSON.stringify(pageVO));
-            getUserBenefitsPage(encodedPageVO)
+            getUserBenefitsPage(pageVO)
                 .then((res) => {
                     // Once the data is fetched, map it and update rows state
                     const fetchedRows = res.list.map((item) =>
@@ -242,7 +241,15 @@ const Record: React.FC<ShareProps> = ({ open, handleClose }) => {
     const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
     return (
-        <Modal open={open} onClose={handleClose} aria-labelledby="modal-title" aria-describedby="modal-description">
+        <Modal
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="modal-title"
+            aria-describedby="modal-description"
+            sx={{
+                '& > div:focus-visible': { outline: 'none' }
+            }}
+        >
             <div
                 style={{
                     position: 'absolute',
@@ -254,15 +261,7 @@ const Record: React.FC<ShareProps> = ({ open, handleClose }) => {
                     justifyContent: 'center'
                 }}
             >
-                <MainCard
-                    content={false}
-                    title="权益记录"
-                    // secondary={
-                    //     <Stack direction="row" spacing={2} alignItems="center" style={{ marginRight: '2rem' }}>
-                    //         <CSVExport data={rows} filename={'enhanced-table.csv'} header={headCells.map((cell) => cell.label)} />
-                    //     </Stack>
-                    // }
-                >
+                <MainCard content={false} title="权益记录" style={{ width: '1200px' }}>
                     <IconButton
                         aria-label="close"
                         onClick={handleClose}
@@ -284,48 +283,49 @@ const Record: React.FC<ShareProps> = ({ open, handleClose }) => {
                                 {stableSort(
                                     rows.filter((row) => typeof row !== 'number'),
                                     getComparator(order, orderBy)
-                                )
-                                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                    .map((row, index) => {
-                                        if (typeof row === 'number') {
-                                            return null; // 忽略数字类型的行
-                                        }
+                                ).map((row, index) => {
+                                    if (typeof row === 'number') {
+                                        return null; // 忽略数字类型的行
+                                    }
 
-                                        const isItemSelected = isSelected(row.benefitsName);
-                                        const labelId = `enhanced-table-checkbox-${index}`;
+                                    const isItemSelected = isSelected(row.benefitsName);
+                                    const labelId = `enhanced-table-checkbox-${index}`;
 
-                                        return (
-                                            <TableRow
-                                                hover
-                                                onClick={(event) => handleClick(event, row.benefitsName)}
-                                                role="checkbox"
-                                                aria-checked={isItemSelected}
-                                                tabIndex={-1}
-                                                key={row.id}
-                                                selected={isItemSelected}
-                                            >
-                                                <TableCell sx={{ pl: 3 }} padding="checkbox" component="th" id={labelId} scope="row">
-                                                    {row.benefitsName}
-                                                </TableCell>
-                                                <TableCell align="center">{row.validity ? '生效' : '无效'}</TableCell>
-                                                <TableCell align="left">{row.benefitsList.join(' ')}</TableCell>
-                                                <TableCell align="right">{formatTime(row.effectiveTime)}</TableCell>
-                                                <TableCell align="right">
-                                                    {row.validity} {row.validityUnit}
-                                                </TableCell>
-                                                <TableCell sx={{ pr: 3 }} align="right">
-                                                    {formatTime(row.expirationTime)}
-                                                </TableCell>
-                                            </TableRow>
-                                        );
-                                    })}
+                                    return (
+                                        <TableRow
+                                            hover
+                                            onClick={(event) => handleClick(event, row.benefitsName)}
+                                            role="checkbox"
+                                            aria-checked={isItemSelected}
+                                            tabIndex={-1}
+                                            key={row.id}
+                                            selected={isItemSelected}
+                                        >
+                                            <TableCell sx={{ pl: 3 }} padding="checkbox" component="th" id={labelId} scope="row">
+                                                {row.benefitsName}
+                                            </TableCell>
+                                            <TableCell align="center">{row.validity ? '生效' : '无效'}</TableCell>
+                                            <TableCell align="center">
+                                                {row.benefitsList.map((benefit, id) => (
+                                                    <Fragment key={id}>
+                                                        {benefit}
+                                                        <br />
+                                                    </Fragment>
+                                                ))}
+                                            </TableCell>
+                                            <TableCell align="right">{formatTime(row.effectiveTime)}</TableCell>
+                                            <TableCell align="right">
+                                                {row.validity} {row.validityUnit === 'MONTH' ? '月' : '年'}
+                                            </TableCell>
+                                            <TableCell sx={{ pr: 3 }} align="right">
+                                                {formatTime(row.expirationTime)}
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })}
 
                                 {emptyRows > 0 && (
-                                    <TableRow
-                                        style={{
-                                            height: (dense ? 33 : 53) * emptyRows
-                                        }}
-                                    >
+                                    <TableRow>
                                         <TableCell colSpan={7} />
                                     </TableRow>
                                 )}
@@ -342,6 +342,7 @@ const Record: React.FC<ShareProps> = ({ open, handleClose }) => {
                         page={page}
                         onPageChange={handleChangePage}
                         onRowsPerPageChange={handleChangeRowsPerPage}
+                        labelRowsPerPage="每页行数"
                     />
                 </MainCard>
             </div>

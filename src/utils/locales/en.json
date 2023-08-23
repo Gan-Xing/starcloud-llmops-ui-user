@@ -373,7 +373,15 @@
   "order-details": "Order Details",
   "product": "Product",
   "product-review": "Product Review",
-  "chat": "Chat",
+  "chat": {
+    "name": "Robot Name",
+    "recommend": "Template Robot",
+    "recommendDes": "Create a robot easily using a template",
+    "createRobot": "Create Robot",
+    "createRobotRequire": "Robot name is required",
+    "typeName": "Please fill in the robot's name",
+    "myRobot": "My Robot"
+  },
   "mail": "Mail",
   "contact": "Contact",
   "calendar": "Calendar",
@@ -483,6 +491,7 @@
   "change": "Change Language",
   "message": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiatnulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollitanim id est laborum.",
   "account-settings": "Account settings",
+  "order-record": "Order record",
   "logout": "Logout",
   "more-items": "More Items",
   "template": "Template Class",
@@ -490,17 +499,17 @@
   "application-analysis": "application Analysis",
   "templateMarket": "templateMarket",
   "EntitlementCard": {
-    "ppgrades": "Go Premium"
+    "ppgrades": "SignIn get token",
+    "ppFreegrades": "SignIn get free token"
   },
   "apply": {
     "name": "Application Name",
     "category": "Category",
     "tag": "Tag",
-    "recommend": "Get Started",
+    "recommend": "Template Application",
     "instruction": "Trial Instruction",
-    "downLoad": "Collection Template",
-    "more": "More",
-    "self": "My App"
+    "self": "My App",
+    "AppDesc": "Select A Began To Write"
   },
   "market": {
     "title": "Application Market",
@@ -522,12 +531,41 @@
     "version": "Version",
     "plugLevel": "Plug-in Level",
     "plugVersion": "Plug-in Version",
-    "invitation": "Exclusive invitation link",
+    "invitation": "Scan Send Friends",
     "tips": "Recommend friends to register, increase the amount of rights and interests",
+    "inGive": "Invite & Rewards",
+    "insucess": "If the invitation is successful, each of you and your friends will receive a token amount, and the reward is unlimited",
     "copy": "Click Copy Invitation code",
     "error": "The currently used tokens are insufficient",
     "welcome": "Welcome",
-    "place": "Search AI Applications"
+    "place": "Search AI Applications",
+    "ai": "AI Result",
+    "like": "Like",
+    "Step": "Dont Like",
+    "copys": "Copy",
+    "share": "Share",
+    "words": "Words",
+    "warning": "Request Error",
+    "modify": "Edit Success",
+    "create": "Create Success",
+    "debug": "Debugging And previewing",
+    "steps": "Steps",
+    "editName": "Edit Step Name",
+    "addDesc": "Click Add Description",
+    "desc": "Edit",
+    "delete": "Delete",
+    "model": "Model Variable",
+    "prompt": "Prompt",
+    "max_tokens": "Max Tokens",
+    "temperature": "Temperature",
+    "n": "N",
+    "copyFiend": "Copy the link and send it to a friend",
+    "promptDesc": "The prompt word is used to make a series of instructions and constraints on the AI's reply. Insertable variables, such as {variable KEY}",
+    "varableDesc": "The variables are presented as a form for the user to fill in before execution, and the content of the form that the user fills in automatically replaces the variables in the prompt word",
+    "addPrompt": "Add this variable to the prompt like this",
+    "copyPrompt": "click Copy Variable Key",
+    "copySuccess": "Copy Success",
+    "fields": "Click on the variable to add it to the prompt word."
   },
   "redemption": {
     "title": "Get MoFaAI Redemption",
@@ -536,6 +574,48 @@
     "redeem": "Redeem",
     "obtain": "Obtain Benefits",
     "scancode": "Scan Code Gain Benefits"
+  },
+  "auth": {
+    "login": {
+      "otherLogin": "Login with Social Media",
+      "welcome": "Hi, Welcome Back",
+      "credentials": " AI make creaction much easier",
+      "account": "Don't have an account?",
+      "signin": "Sign In",
+      "forgotpassword": "Forgot Password ?",
+      "requirepassword": "Enter your email address below and we'll send you password reset OTP.",
+      "wechatLoginDes": "WeChat scan code login to register"
+    },
+    "register": {
+      "signup": "Sign Up",
+      "signupwithemail": "Sign up with Email address",
+      "emailrequired": "Email is required",
+      "passwordrequired": "Password is required",
+      "successful": "An activation link has been sent to your email. Please check your inbox to activate your account.",
+      "tologin": "Already have an account?",
+      "checkTreaty": "Please agree to the terms and conditions of the agreement below"
+    },
+    "password": {
+      "poor": "Poor",
+      "weak": "Weak",
+      "normal": "Normal",
+      "good": "Good",
+      "strong": "Strong",
+      "sendmail": "Send Mail",
+      "confirmsend": "Check mail for reset password link"
+    },
+    "require": {
+      "emailvalide": "Must be a valid email",
+      "agree": "Agree with",
+      "terms": "Terms & Condition."
+    },
+    "policy": {
+      "title": "魔法AI用户服务协议",
+      "date": "Last updated on 18th Feb 2022",
+      "title1": "【前言】",
+      "content1": "欢迎使用由星河云海（杭州）网络技术有限公司及其关联方（以下简称“星河云海”或“我们”）合法拥有并运营的魔法AI产品及服务。",
+      "content2": "魔法AI是一个基于人工智能的营销内容创作平台。魔法AI相关网站、服务、产品、应用程序与内容，在《魔法AI用户服务协议》（以下简称“本协议”）中统称为“本服务”。个人用户、授权用户统称为“您”。"
+    }
   },
   "2profile": {
     "user": {
@@ -568,46 +648,6 @@
       "currentpassword": "Current Password",
       "newpassword": "New Password",
       "confirmpassword": "Confirm Password"
-    }
-  },
-  "auth": {
-    "login": {
-      "otherLogin": "Login with Social Media",
-      "welcome": "Hi, Welcome Back",
-      "credentials": " AI make creaction much easier",
-      "account": "Don't have an account?",
-      "signin": "Sign In",
-      "forgotpassword": "Forgot Password ?",
-      "requirepassword": "Enter your email address below and we'll send you password reset OTP."
-    },
-    "register": {
-      "signup": "Sign Up",
-      "signupwithemail": "Sign up with Email address",
-      "emailrequired": "Email is required",
-      "passwordrequired": "Password is required",
-      "successful": "An activation link has been sent to your email. Please check your inbox to activate your account.",
-      "tologin": "Already have an account?"
-    },
-    "password": {
-      "poor": "Poor",
-      "weak": "Weak",
-      "normal": "Normal",
-      "good": "Good",
-      "strong": "Strong",
-      "sendmail": "Send Mail",
-      "confirmsend": "Check mail for reset password link"
-    },
-    "require": {
-      "emailvalide": "Must be a valid email",
-      "agree": "Agree with",
-      "terms": "Terms & Condition."
-    },
-    "policy": {
-      "title": "魔法AI用户服务协议",
-      "date": "Last updated on 18th Feb 2022",
-      "title1": "【前言】",
-      "content1": "欢迎使用由星河云海（杭州）网络技术有限公司及其关联方（以下简称“星河云海”或“我们”）合法拥有并运营的魔法AI产品及服务。",
-      "content2": "魔法AI是一个基于人工智能的营销内容创作平台。魔法AI相关网站、服务、产品、应用程序与内容，在《魔法AI用户服务协议》（以下简称“本协议”）中统称为“本服务”。个人用户、授权用户统称为“您”。"
     }
   },
   "user": {
@@ -678,15 +718,80 @@
     "totalElapsed": "Total Elapsed",
     "totalPrice": "Total Price",
     "status": "Status",
-    "createTime": "CreateTime"
+    "createTime": "CreateTime",
+    "CHAT": "Chat",
+    "COMPLETION": "Completion",
+    "BASE_GENERATE_IMAGE": "Base Generate Image",
+    "detail": "Detail"
   },
   "generateLog": {
     "messageTotal": "Message Total",
-    "usertotal": "User Total",
+    "usertotal": "User Satisfaction",
     "TimeConsuming": "Average Time Consuming",
     "tokenTotal": "tokens Total",
     "name": "Name",
     "date": "Time",
     "search": "Search"
+  },
+  "myApp": {
+    "back": "Back",
+    "save": "Save",
+    "basis": "Basic Setup",
+    "arrangement": "Flow Choreography",
+    "upload": "App Publishing",
+    "isrequire": "Name is required",
+    "flow": "Execution Process",
+    "title": "Title",
+    "desc": "Description",
+    "variable": "Variable",
+    "table": "Variable",
+    "add": "Add",
+    "field": "Variable Key",
+    "name": "Name",
+    "value": "defaultValue",
+    "isShow": "Show or not",
+    "operation": "Operation",
+    "type": "Type",
+    "del": "Delete Variable",
+    "delDesc": "Confirm to delete this data",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "addOption": "Add Option",
+    "edit": "Edit",
+    "input": "INPUT",
+    "select": "SELECT",
+    "textarea": "TEXTAREA",
+    "execuent": "AI Result",
+    "responent": "Output Format",
+    "appName": "App Name",
+    "appDesc": "App Description",
+    "categary": "Categories",
+    "scense": "Scense",
+    "stepStyle": "Style Configuration",
+    "exeLabel": "Execute Button Name",
+    "categoryVaid": "Categories Is Required",
+    "delApp": "Delete App"
+  },
+  "voiceStyles": {
+    "affectionate": "affectionate",
+    "embarrassed": "embarrassed",
+    "calm": "calm",
+    "fearful": "fearful",
+    "cheerful": "cheerful",
+    "disgruntled": "disgruntled",
+    "serious": "serious",
+    "angry": "angry",
+    "sad": "sad",
+    "narration-relaxed": "narration-relaxed",
+    "depressed": "depressed",
+    "chat": "chat",
+    "assistant": "assistant",
+    "newscast": "newscast",
+    "gentle": "gentle",
+    "envious": "envious",
+    "customerservice": "customerservice",
+    "lyrical": "lyrical",
+    "poetry-reading": "poetry-reading",
+    "friendly": "friendly"
   }
 }

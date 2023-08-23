@@ -1,6 +1,7 @@
 // routing
 import Routes from 'routes';
-
+import './App.scss';
+import zhCN from 'antd/locale/zh_CN';
 // project imports
 
 import NavigationScroll from 'layout/NavigationScroll';
@@ -18,6 +19,7 @@ import { JWTProvider as AuthProvider } from 'contexts/JWTContext';
 import { openSnackbar } from 'store/slices/snackbar';
 import { dispatch } from 'store';
 import usePubSubEvent from 'hooks/usePubsub';
+import { ConfigProvider } from 'antd';
 // import { t } from 'hooks/web/useI18n';
 // import { FirebaseProvider as AuthProvider } from 'contexts/FirebaseContext';
 // import { AWSCognitoProvider as AuthProvider } from 'contexts/AWSCognitoContext';
@@ -58,18 +60,20 @@ const App = () => {
     // if (!loading) return <Loader />;
 
     return (
-        <ThemeCustomization>
-            <RTLLayout>
-                <NavigationScroll>
-                    <AuthProvider>
-                        <>
-                            <Routes />
-                            <Snackbar />
-                        </>
-                    </AuthProvider>
-                </NavigationScroll>
-            </RTLLayout>
-        </ThemeCustomization>
+        <ConfigProvider theme={{ token: { colorPrimary: '#673ab7' } }} locale={zhCN}>
+            <ThemeCustomization>
+                <RTLLayout>
+                    <NavigationScroll>
+                        <AuthProvider>
+                            <>
+                                <Routes />
+                                <Snackbar />
+                            </>
+                        </AuthProvider>
+                    </NavigationScroll>
+                </RTLLayout>
+            </ThemeCustomization>
+        </ConfigProvider>
     );
 };
 

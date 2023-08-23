@@ -5,10 +5,13 @@ import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import Grid from '@mui/material/Grid';
 import useUserStore from 'store/user';
+import { userBenefits } from 'api/template';
+import userInfoStore from 'store/entitlementAction';
 
 const MiddleCards = () => {
     const signInStatus = useUserStore((state) => state.signInStatus);
     const setSignInStatus = useUserStore((state) => state.setSignInStatus);
+    const { setUserInfo }: any = userInfoStore();
     useEffect(() => {
         checkSignInStatus().then((status) => {
             setSignInStatus(status);
@@ -19,6 +22,9 @@ const MiddleCards = () => {
         signIn().then((result) => {
             if (result) {
                 setSignInStatus(true);
+                userBenefits().then((res) => {
+                    setUserInfo(res);
+                });
             }
         });
     };
@@ -35,7 +41,7 @@ const MiddleCards = () => {
         {
             Icon: EventNoteIcon,
             title: '每日签到',
-            description: '送2000字/2张图片',
+            description: '送3000字/2张图片',
             buttonText: signInStatus ? '已签到' : '立即签到',
             isDisabled: signInStatus ? true : false,
             onClick: !signInStatus ? handleSignIn : undefined

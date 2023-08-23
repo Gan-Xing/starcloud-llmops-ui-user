@@ -1,15 +1,15 @@
 // material-ui
+import { Avatar, Box, Button, FormControlLabel, Switch, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { Avatar, Box, useMediaQuery } from '@mui/material';
 
 // project imports
 import LAYOUT_CONST from 'constant';
 import useConfig from 'hooks/useConfig';
 import LogoSection from '../LogoSection';
-import SearchSection from './SearchSection';
+import LocalizationSection from './LocalizationSection';
 import MobileSection from './MobileSection';
 import ProfileSection from './ProfileSection';
-import LocalizationSection from './LocalizationSection';
+import SearchSection from './SearchSection';
 // import MegaMenuSection from './MegaMenuSection';
 // import NotificationSection from './NotificationSection';
 
@@ -18,18 +18,22 @@ import { openDrawer } from 'store/slices/menu';
 
 // assets
 import { IconMenu2 } from '@tabler/icons';
+import { t } from 'hooks/web/useI18n';
+import { useNavigate } from 'react-router-dom';
 
 // ==============================|| MAIN NAVBAR / HEADER ||============================== //
 
 const Header = () => {
     const theme = useTheme();
-
+    const { navType, onChangeMenuType } = useConfig();
     const dispatch = useDispatch();
     const { drawerOpen } = useSelector((state) => state.menu);
+    const navigate = useNavigate();
 
     const matchDownMd = useMediaQuery(theme.breakpoints.down('md'));
     const { layout } = useConfig();
 
+    // @ts-ignore
     return (
         <>
             {/* logo & toggler button */}
@@ -77,6 +81,31 @@ const Header = () => {
             {/* <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
                 <MegaMenuSection />
             </Box> */}
+            <Button
+                className="mr-10"
+                color={'secondary'}
+                size={'small'}
+                variant="contained"
+                sx={{ boxShadow: 'none' }}
+                onClick={() => {
+                    navigate('/exchange');
+                }}
+            >
+                {t('EntitlementCard.ppFreegrades')}
+            </Button>
+
+            <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                <FormControlLabel
+                    value={navType === 'light'}
+                    onChange={(e: any) => onChangeMenuType(e.target?.checked ? 'light' : 'dark')}
+                    control={<Switch defaultChecked color="secondary" />}
+                    label={navType === 'dark' ? 'Dark' : 'Light'}
+                    sx={{
+                        '& .MuiSvgIcon-root': { fontSize: 28 },
+                        '& .MuiFormControlLabel-label': { color: theme.palette.grey[900] }
+                    }}
+                />
+            </Box>
 
             {/* live customization & localization */}
             <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
