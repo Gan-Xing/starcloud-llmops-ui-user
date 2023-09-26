@@ -8,6 +8,7 @@ import { t } from 'hooks/web/useI18n';
 import marketStore from 'store/market';
 import ScrollMenus from './ScrollMenu';
 import { useTheme } from '@mui/material/styles';
+import { ChatBtn } from '../myChat/createChat/components/Chat';
 interface MarketList {
     name: string;
     tags: string[];
@@ -27,12 +28,12 @@ function TemplateMarket() {
     const [queryParams, setQueryParams] = useState({
         name: '',
         sort: '',
-        category: ''
+        category: 'AMAZON'
     });
     useEffect(() => {
         handleSearch();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [queryParams]);
+    }, [queryParams, templateList]);
     const sortList = [
         { text: t('market.new'), key: 'gmt_create' },
         { text: t('market.popular'), key: 'like' },
@@ -90,8 +91,8 @@ function TemplateMarket() {
     const goodsScroll = (event: any) => {
         const container = event.target;
         const scrollTop = container.scrollTop;
-        if (scrollTop <= 293) {
-            setHeight(293 - scrollTop);
+        if (scrollTop <= 133) {
+            setHeight(133 - scrollTop);
         }
         const clientHeight = container.clientHeight;
         const scrollHeight = container.scrollHeight;
@@ -119,7 +120,7 @@ function TemplateMarket() {
             category: data
         });
     };
-    const [maxHeight, setHeight] = useState(293);
+    const [maxHeight, setHeight] = useState(133);
     return (
         <Box
             sx={{
@@ -150,16 +151,17 @@ function TemplateMarket() {
                 }}
             >
                 <Box>
-                    <Typography variant="h1" mt={3} textAlign="center">
-                        {t('market.title')}
-                    </Typography>
-                    <Typography variant="h4" my={2} textAlign="center">
-                        {t('market.subLeft')} {total} + {t('market.subright')}
-                    </Typography>
-                    <Box display="flex" justifyContent="center">
+                    <Box className="flex mb-[8px] flex-wrap items-end gap-3">
+                        <Typography variant="h2" lineHeight={1}>
+                            {t('market.title')}
+                        </Typography>
+                        {/* <Typography color="#697586" fontSize="12px" ml={0.5} fontWeight={500}>
+                                {t('market.subLeft')} {total} + {t('market.subright')}
+                            </Typography> */}
                         <TextField
+                            size="small"
                             id="filled-start-adornment"
-                            sx={{ width: '600px' }}
+                            sx={{ width: '300px' }}
                             placeholder={t('market.place')}
                             name="name"
                             value={queryParams.name}
@@ -173,7 +175,8 @@ function TemplateMarket() {
                             }}
                         />
                     </Box>
-                    <Grid container spacing={2} my={2}>
+
+                    <Grid container spacing={2} mb={1}>
                         <Grid item xs={12} md={10}>
                             <ScrollMenus change={changeCategory} />
                         </Grid>
@@ -193,6 +196,9 @@ function TemplateMarket() {
                 </Box>
                 <Outlet />
             </Box>
+            {/* <div className="w-full bottom-5 absolute">
+                <ChatBtn />
+            </div> */}
         </Box>
     );
 }

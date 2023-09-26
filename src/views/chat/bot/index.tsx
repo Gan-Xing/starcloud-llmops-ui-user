@@ -29,7 +29,7 @@ const chatBot = () => {
     const [chatBotInfo, setChatBotInfo] = useState<IChatInfo>({
         guideList: ['', '']
     });
-    const [mUid, setMUid] = useState('');
+    const [mUid, setMUid] = useState<any>('');
     const [showSelect, setShowSelect] = useState(false);
     const [list, setList] = useState<any[]>([]);
 
@@ -54,7 +54,7 @@ const chatBot = () => {
         for (const key in data) {
             if (data.hasOwnProperty(key)) {
                 const value = data[key];
-                resultArray.push({ k: value.name, v: key });
+                resultArray.push({ name: value.name, avatar: value.images[0], des: value.description, value: key });
             }
         }
 
@@ -66,6 +66,7 @@ const chatBot = () => {
             (async () => {
                 const res = await getChatDetail(mUid);
                 setChatBotInfo({
+                    uid: res.uid,
                     name: res.name,
                     avatar: res?.images?.[0],
                     introduction: res.description, // 简介
@@ -76,11 +77,28 @@ const chatBot = () => {
                     temperature: res.chatConfig.modelConfig?.completionParams?.temperature,
                     defaultImg: res?.images?.[0],
                     enableSearchInWeb: res.chatConfig?.webSearchConfig?.enabled,
-                    searchInWeb: res.chatConfig?.webSearchConfig?.webScope
+                    searchInWeb: res.chatConfig?.webSearchConfig?.webScope,
+                    modelProvider: res?.chatConfig?.modelConfig?.provider === 'openai' ? 'GPT35' : res?.chatConfig?.modelConfig?.provider
                 });
             })();
         }
     }, [mUid]);
+
+    useEffect(() => {
+        // 创建一个新的meta标签
+        const meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0';
+
+        // 查找页面的头部并将新的meta标签添加进去
+        const head: any = document.querySelector('head');
+        head.appendChild(meta);
+
+        // 在组件卸载时，删除这个meta标签以还原原始设置
+        return () => {
+            head.removeChild(meta);
+        };
+    }, []);
 
     return (
         <div className="h-[100vh]">
@@ -90,9 +108,9 @@ const chatBot = () => {
                 mediumUid={mUid}
                 setMUid={setMUid}
                 statisticsMode={statisticsMode}
-                // showSelect={showSelect}
-                showSelect={false}
+                showSelect={showSelect}
                 botList={list}
+                setChatBotInfo={setChatBotInfo}
             />
         </div>
     );

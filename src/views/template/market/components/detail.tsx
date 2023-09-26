@@ -1,10 +1,12 @@
-import { Typography, Breadcrumbs, Link, Box, Card, Chip, Divider, CircularProgress } from '@mui/material';
-
+import { Typography, Breadcrumbs, Link, Box, Card, Chip, Divider, CircularProgress, Button } from '@mui/material';
+import { Popconfirm } from 'antd';
 import AccessAlarm from '@mui/icons-material/AccessAlarm';
+import DeleteIcon from '@mui/icons-material/Delete';
 // import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 // import VerticalAlignBottomIcon from '@mui/icons-material/VerticalAlignBottom';
 // import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import {
+    delMarket,
     marketDeatail
     // installTemplate
 } from 'api/template';
@@ -21,6 +23,8 @@ import { userBenefits } from 'api/template';
 import userInfoStore from 'store/entitlementAction';
 import { useTheme } from '@mui/material/styles';
 import _ from 'lodash-es';
+import useUserStore from 'store/user';
+import { PermissionUpgradeModal } from 'views/template/myChat/createChat/components/modal/permissionUpgradeModal';
 function Deatail() {
     const ref = useRef<HTMLDivElement | null>(null);
     const { setUserInfo }: any = userInfoStore();
@@ -28,8 +32,12 @@ function Deatail() {
     const navigate = useNavigate();
     const [detailData, setDetailData] = useState<Details>(null as unknown as Details);
     const detailRef: any = useRef(null);
+    //token不足
+    const [tokenOpen, setTokenOpen] = useState(false);
     //执行loading
     const [loadings, setLoadings] = useState<any[]>([]);
+    //是否显示分享翻译
+    const [isShows, setIsShow] = useState<any[]>([]);
     let isAllExecute = false;
     let conversationUid: undefined | string = undefined;
     //执行
@@ -64,23 +72,21 @@ function Deatail() {
                 let joins = outerJoins;
                 const { done, value } = await reader.read();
                 if (textDecoder.decode(value).includes('2008002007')) {
-                    dispatch(
-                        openSnackbar({
-                            open: true,
-                            message: t('market.error'),
-                            variant: 'alert',
-                            alert: {
-                                color: 'error'
-                            },
-                            close: false
-                        })
-                    );
+                    setTokenOpen(true);
                     const newValue1 = [...loadings];
-                    newValue1[index] = false;
+                    newValue1.forEach((item) => {
+                        item = false;
+                    });
                     setLoadings(newValue1);
                     return;
                 }
                 if (done) {
+                    const newValue1 = [...loadings];
+                    newValue1[index] = false;
+                    setLoadings(newValue1);
+                    const newShow = _.cloneDeep(isShows);
+                    newShow[index] = true;
+                    setIsShow(newShow);
                     userBenefits().then((res) => {
                         setUserInfo(res);
                     });
@@ -97,9 +103,6 @@ function Deatail() {
                     }
                     break;
                 }
-                const newValue1 = [...loadings];
-                newValue1[index] = false;
-                setLoadings(newValue1);
                 let str = textDecoder.decode(value);
                 const lines = str.split('\n');
                 lines.forEach((message, i: number) => {
@@ -117,18 +120,31 @@ function Deatail() {
                     if (message?.startsWith('data:')) {
                         bufferObj = message.substring(5) && JSON.parse(message.substring(5));
                     }
-                    if (bufferObj?.code === 200) {
+                    if (bufferObj?.code === 200 && bufferObj.type !== 'ads-msg') {
+                        const newValue1 = _.cloneDeep(loadings);
+                        newValue1[index] = false;
+                        setLoadings(newValue1);
                         if (!conversationUid && index === 0 && isAllExecute) {
                             conversationUid = bufferObj.conversationUid;
                         }
                         const contentData1 = _.cloneDeep(contentData);
-                        contentData.workflowConfig.steps[index].flowStep.response.answer =
-                            contentData.workflowConfig.steps[index].flowStep.response.answer + bufferObj.content;
                         contentData1.workflowConfig.steps[index].flowStep.response.answer =
-                            contentData.workflowConfig.steps[index].flowStep.response.answer + bufferObj.content;
+                            detailRef.current.workflowConfig.steps[index].flowStep.response.answer + bufferObj.content;
                         detailRef.current = contentData1;
                         setDetailData(contentData1);
-                    } else if (bufferObj && bufferObj.code !== 200) {
+                    } else if (bufferObj?.code === 200 && bufferObj.type === 'ads-msg') {
+                        dispatch(
+                            openSnackbar({
+                                open: true,
+                                message: bufferObj.content,
+                                variant: 'alert',
+                                alert: {
+                                    color: 'success'
+                                },
+                                close: false
+                            })
+                        );
+                    } else if (bufferObj && bufferObj.code !== 200 && bufferObj.code !== 300900000) {
                         dispatch(
                             openSnackbar({
                                 open: true,
@@ -172,6 +188,19 @@ function Deatail() {
         detailRef.current = newValue;
         setDetailData(newValue);
     };
+    //增加 删除 改变变量
+    const changeConfigs = (data: any) => {
+        detailRef.current = _.cloneDeep({
+            ...detailData,
+            workflowConfig: data
+        });
+        setDetailData(
+            _.cloneDeep({
+                ...detailData,
+                workflowConfig: data
+            })
+        );
+    };
     useEffect(() => {
         marketDeatail({ uid }).then((res: any) => {
             setAllLoading(false);
@@ -186,6 +215,23 @@ function Deatail() {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+    const permissions = useUserStore((state) => state.permissions);
+    //删除模板
+    const delTemplate = async () => {
+        const res = await delMarket(detailData.uid);
+        navigate('/appMarket/list');
+        dispatch(
+            openSnackbar({
+                open: true,
+                message: '删除成功',
+                variant: 'alert',
+                alert: {
+                    color: 'success'
+                },
+                close: false
+            })
+        );
+    };
     // const iconStyle = {
     //     fontSize: '16px',
     //     display: 'inline-block',
@@ -280,10 +326,24 @@ function Deatail() {
                 >
                     {detailData.installStatus?.installStatus === 'UNINSTALLED' ? t('market.down') : t('market.ins')}
                 </LoadingButton> */}
+                {permissions.includes('app:market:delete') && (
+                    <Popconfirm placement="top" title="请再次确认是否删除" onConfirm={delTemplate} okText="Yes" cancelText="No">
+                        <Button
+                            startIcon={<DeleteIcon fontSize="small" />}
+                            variant="outlined"
+                            className="absolute top-[16px] right-[16px]"
+                            color="error"
+                        >
+                            删除模板
+                        </Button>
+                    </Popconfirm>
+                )}
             </Box>
             <Divider sx={{ mb: 1, borderColor: isDarkMode ? '#bdc8f0' : '#ccc' }} />
             <CarryOut
                 config={detailData}
+                isShows={isShows}
+                changeConfigs={changeConfigs}
                 changeData={changeData}
                 variableChange={variableChange}
                 promptChange={promptChange}
@@ -293,6 +353,7 @@ function Deatail() {
                     isAllExecute = value;
                 }}
             />
+            <PermissionUpgradeModal open={tokenOpen} handleClose={() => setTokenOpen(false)} title={'当前使用的令牌不足'} />
         </Card>
     );
 }

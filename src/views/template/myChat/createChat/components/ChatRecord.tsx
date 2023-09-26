@@ -1,8 +1,9 @@
 import { Card, CardContent, Divider, Typography, useTheme } from '@mui/material';
 import React, { useEffect, useMemo, useRef } from 'react';
 import ChatHistory from './ChatHistory';
+import { extractChatBlocks } from './Chat';
 
-export const ChatRecord = ({ list }: { list: any }) => {
+export const ChatRecord = ({ list, conversationUid }: { list: any; conversationUid: string }) => {
     const theme = useTheme();
 
     const [chatBotInfo, setChatBotInfo] = React.useState<any>({});
@@ -28,7 +29,7 @@ export const ChatRecord = ({ list }: { list: any }) => {
 
     const data = useMemo(() => {
         if (list) {
-            return list.map((v: any) => ({ ...v, robotName: v?.appName, robotAvatar: v?.images?.[0] }));
+            return extractChatBlocks(list.map((v: any) => ({ ...v, robotName: v?.appName, robotAvatar: v?.images?.[0] })));
         }
         return [];
     }, [list]);
@@ -40,6 +41,9 @@ export const ChatRecord = ({ list }: { list: any }) => {
                     {chatBotInfo.avatar && <img className="w-[28px] h-[28px] rounded-md object-fill" src={chatBotInfo.avatar} alt="" />}
                 </div>
                 <span className={'text-lg font-medium ml-2'}>{chatBotInfo.name}</span>
+                <Typography fontSize="12px" color="#697586" ml={1}>
+                    (会话id：{conversationUid})
+                </Typography>
             </div>
             <Divider variant={'fullWidth'} />
             <div className="h-[calc(100vh-64px)] w-[100%] overflow-y-auto">

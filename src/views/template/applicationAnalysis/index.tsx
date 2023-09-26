@@ -3,7 +3,6 @@ import {
     Grid,
     FormControl,
     InputLabel,
-    InputAdornment,
     Select,
     MenuItem,
     Typography,
@@ -22,15 +21,18 @@ import {
     Divider,
     Chip,
     IconButton,
-    CardContent
+    CardContent,
+    Tooltip,
+    Link
 } from '@mui/material';
-import ClearIcon from '@mui/icons-material/Clear';
+import { Tag } from 'antd';
 import formatDate from 'hooks/useDate';
 import AccessAlarm from '@mui/icons-material/AccessAlarm';
 import CloseIcon from '@mui/icons-material/Close';
 import SubCard from 'ui-component/cards/SubCard';
 import MainCard from 'ui-component/cards/MainCard';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Chart, { Props } from 'react-apexcharts';
 import { logStatistics, statisticsByAppUid, infoPage, infoPageByAppUid, logMetaData, detailImage, detailApp } from 'api/template';
 import SearchIcon from '@mui/icons-material/Search';
@@ -40,6 +42,7 @@ import marketStore from 'store/market';
 import PicModal from 'views/picture/create/Modal';
 import { getChatRecord } from 'api/chat';
 import { ChatRecord } from '../myChat/createChat/components/ChatRecord';
+import DetailErr from '../../../ui-component/detailErr';
 import useUserStore from 'store/user';
 interface LogStatistics {
     messageCount: string;
@@ -67,6 +70,8 @@ interface TableData {
     endUser: string;
     appExecutor: string;
     updateTime: number;
+    errorCode?: string;
+    errorMsg?: string;
 }
 interface Date {
     label: string;
@@ -166,7 +171,7 @@ function ApplicationAnalysis({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
     useEffect(() => {
-        if (value === 2) {
+        if (value === 2 || value === 7) {
             //获取echarts
             getStatistic();
             infoList(page);
@@ -264,7 +269,8 @@ function ApplicationAnalysis({
     const getDeList = (row: { appMode: string; uid: string }) => {
         if (row.appMode === 'BASE_GENERATE_IMAGE') {
             detailImage({ conversationUid: row.uid }).then((res) => {
-                setImgDetail(res.imageInfo);
+                setResult(res);
+                setImgDetail(res.imageInfo || { images: [{ url: '' }], prompt: '', engine: '', width: 0, height: 0 });
                 setPicOpen(true);
             });
         }
@@ -282,11 +288,14 @@ function ApplicationAnalysis({
     const [currentIndex, setCurrentIndex] = useState(0);
     //执行弹窗
     const [exeOpen, setExeOpen] = useState(false);
+    //接口请求出来的全部内容
+    const [result, setResult] = useState<any>({});
     const [exeDetail, setExeDetail] = useState<any>({});
     //聊天
     const [chatVisible, setChatVisible] = useState(false);
     //绘话id
     const [conversationUid, setConversationUid] = useState('');
+    const navigate = useNavigate();
     return (
         <Box>
             <Grid sx={{ mb: 2 }} container spacing={2} alignItems="center">
@@ -372,27 +381,59 @@ function ApplicationAnalysis({
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead>
                         <TableRow>
-                            <TableCell align="center">{t('generate.mode')}</TableCell>
-                            <TableCell align="center">{t('generate.name')}</TableCell>
-                            <TableCell align="center">执行场景</TableCell>
-                            <TableCell align="center">{t('generate.totalAnswerTokens')}</TableCell>
-                            <TableCell align="center">{t('generate.totalElapsed')} (s)</TableCell>
-                            <TableCell align="center">{t('generate.status')}</TableCell>
-                            <TableCell align="center">用户</TableCell>
-                            <TableCell align="center">更新时间</TableCell>
-                            <TableCell align="center"></TableCell>
+                            <TableCell sx={{ minWidth: '200px' }} align="center">
+                                {t('generate.name')}
+                            </TableCell>
+                            <TableCell sx={{ minWidth: '100px' }} align="center">
+                                {t('generate.mode')}
+                            </TableCell>
+                            <TableCell sx={{ minWidth: '100px' }} align="center">
+                                执行场景
+                            </TableCell>
+                            <TableCell sx={{ minWidth: '100px' }} align="center">
+                                {t('generate.totalAnswerTokens')}
+                            </TableCell>
+                            <TableCell sx={{ minWidth: '100px' }} align="center">
+                                {t('generate.totalElapsed')} (s)
+                            </TableCell>
+                            <TableCell sx={{ minWidth: '100px' }} align="center">
+                                用户
+                            </TableCell>
+                            <TableCell sx={{ minWidth: '200px' }} align="center">
+                                {t('generate.status')}
+                            </TableCell>
+                            <TableCell sx={{ minWidth: '150px' }} align="center">
+                                更新时间
+                            </TableCell>
+                            <TableCell sx={{ minWidth: '50px' }} align="center"></TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {totalData?.map((row) => (
                             <TableRow key={row.uid} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                                <TableCell align="center">{t('generate.' + row.appMode)}</TableCell>
                                 <TableCell align="center">{row.appName}</TableCell>
+                                <TableCell align="center">{t('generate.' + row.appMode)}</TableCell>
                                 <TableCell align="center">{appScene.find((item) => item.value === row.fromScene)?.label}</TableCell>
                                 <TableCell align="center">{row.totalAnswerTokens + row.totalMessageTokens}</TableCell>
                                 <TableCell align="center">{row.totalElapsed}</TableCell>
-                                <TableCell align="center">{row.status}</TableCell>
                                 <TableCell align="center">{row.appExecutor}</TableCell>
+                                <TableCell align="center">
+                                    {row.status !== 'SUCCESS' ? (
+                                        row.errorCode === '2008002007' ? (
+                                            <Link onClick={() => navigate('/subscribe')} color="secondary" className="cursor-pointer">
+                                                令牌不足，去升级
+                                            </Link>
+                                        ) : (
+                                            <Tooltip placement="top" title={<Typography>{`系统异常（${row.errorCode}）`}</Typography>}>
+                                                <Tag className="cursor-pointer" color={row.status === 'SUCCESS' ? 'success' : 'error'}>
+                                                    失败
+                                                </Tag>
+                                            </Tooltip>
+                                        )
+                                    ) : (
+                                        <Tag color="success">成功</Tag>
+                                    )}
+                                </TableCell>
                                 <TableCell align="center">{formatDate(row.updateTime)}</TableCell>
                                 <TableCell align="center">
                                     <Button
@@ -404,12 +445,19 @@ function ApplicationAnalysis({
                                             } else if (row.appMode === 'COMPLETION') {
                                                 detailApp({ conversationUid: row.uid }).then((res) => {
                                                     setExeDetail(res.appInfo);
+                                                    setResult(res);
                                                     setConversationUid(res.conversationUid);
                                                     setExeOpen(true);
                                                 });
                                             } else if (row.appMode === 'CHAT') {
                                                 setChatVisible(true);
-                                                getChatRecord({ conversationUid: row.uid, pageNo: 1, pageSize: 100 }).then((res) => {
+                                                setConversationUid(row.uid);
+                                                getChatRecord({
+                                                    conversationUid: row.uid,
+                                                    pageNo: 1,
+                                                    pageSize: 100,
+                                                    fromScene: row.fromScene
+                                                }).then((res) => {
                                                     setDetail(res.list);
                                                 });
                                             }
@@ -451,13 +499,14 @@ function ApplicationAnalysis({
                     sx={{ '& .MuiDrawer-paper': { overflow: 'hidden' } }}
                     onClose={() => {
                         setChatVisible(false);
+                        setConversationUid('');
                         setDetail(null);
                     }}
                 >
                     <div className="bg-[#f4f6f8] w-[350px] md:w-[600px] flex items-center justify-center">
                         <div className="m-[10px] bg-[#fff] h-[calc(100vh-20px)] w-[100%] rounded-lg">
                             <Card>
-                                <ChatRecord list={detail} />
+                                <ChatRecord list={detail} conversationUid={conversationUid} />
                             </Card>
                         </div>
                     </div>
@@ -471,6 +520,7 @@ function ApplicationAnalysis({
                     onClose={() => {
                         setExeOpen(false);
                         setExeDetail({});
+                        setResult({});
                         setConversationUid('');
                     }}
                 >
@@ -481,7 +531,7 @@ function ApplicationAnalysis({
                                     <Box display="flex" alignItems="end">
                                         <Typography variant="h3">历史详情</Typography>
                                         <Typography fontSize="12px" color="#697586" ml={1}>
-                                            (绘话id：{conversationUid})
+                                            (会话id：{conversationUid})
                                         </Typography>
                                     </Box>
                                 }
@@ -501,9 +551,10 @@ function ApplicationAnalysis({
                             >
                                 <CardContent>
                                     <Box>
+                                        {result.status === 'ERROR' && <DetailErr result={result} />}
                                         <Box display="flex" justifyContent="space-between" alignItems="center">
                                             <Box display="flex" justifyContent="space-between" alignItems="center">
-                                                <AccessAlarm sx={{ fontSize: '70px' }} />
+                                                {result.status !== 'ERROR' && <AccessAlarm sx={{ fontSize: '70px' }} />}
                                                 <Box>
                                                     <Box>
                                                         <Typography variant="h1" sx={{ fontSize: '2rem' }}>
@@ -529,16 +580,18 @@ function ApplicationAnalysis({
                                                 </Box>
                                             </Box>
                                         </Box>
-                                        <Divider sx={{ mb: 1 }} />
+                                        {result.status !== 'ERROR' && <Divider sx={{ mb: 1 }} />}
                                         <Typography variant="h5" sx={{ fontSize: '1.1rem', mb: 3 }}>
                                             {exeDetail?.description}
                                         </Typography>
                                         <Perform
                                             history={true}
                                             config={exeDetail.workflowConfig}
+                                            changeConfigs={() => {}}
                                             changeSon={() => {}}
                                             changeanswer={() => {}}
                                             loadings={[]}
+                                            isShows={[]}
                                             variableChange={() => {}}
                                             promptChange={() => {}}
                                             isallExecute={() => {}}
