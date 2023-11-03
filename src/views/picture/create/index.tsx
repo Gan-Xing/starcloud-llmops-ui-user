@@ -15,7 +15,8 @@ export type IImageListType = IImageListTypeChild[];
 export type IImageListTypeChildImages = {
     uuid: string;
     url: string;
-    media_type?: string;
+    mediaType?: string;
+    seed?: number;
 };
 export type IImageListTypeChild = {
     prompt: string;
@@ -25,6 +26,7 @@ export type IImageListTypeChild = {
     width: number;
     height: number;
     create: boolean;
+    stylePreset?: string;
 };
 
 const PictureCreate = () => {
@@ -32,8 +34,8 @@ const PictureCreate = () => {
     const [menuVisible, setMenuVisible] = useState<boolean>(true);
     const size = useWindowSize();
     const [imgList, setImgList] = useState<IImageListType>([]);
-    const [width, setWidth] = useState(512);
-    const [height, setHeight] = useState(512);
+    const [width, setWidth] = useState(1024);
+    const [height, setHeight] = useState(1024);
     const [samples, setSamples] = useState(2);
     const [inputValue, setInputValue] = useState('');
     const [isFirst, setIsFirst] = useState(true);
@@ -58,8 +60,13 @@ const PictureCreate = () => {
 
     useEffect(() => {
         (async () => {
-            const res = await getImgList({ pageNo, pageSize: 10 });
-            setImgList(res.list || []);
+            const res = await getImgList({ pageNo, pageSize: 10, scenes: ['WEB_IMAGE'], status: 'SUCCESS' });
+            setImgList(
+                res?.list?.map((item: any) => ({
+                    ...item.imageInfo,
+                    createTime: item.createTime
+                })) || []
+            );
             setTotal(res.total || 0);
         })();
     }, []);
@@ -71,8 +78,14 @@ const PictureCreate = () => {
         }
         const newPageNo = pageNo + 1;
         setPageNo(newPageNo);
-        const res = await getImgList({ pageNo: newPageNo, pageSize: 10 });
-        setImgList([...imgList, ...(res.list || [])]);
+        const res = await getImgList({ pageNo, pageSize: 10, scenes: ['WEB_IMAGE'], status: 'SUCCESS' });
+        setImgList([
+            ...imgList,
+            ...(res?.list?.map((item: any) => ({
+                ...item.imageInfo,
+                createTime: item.createTime
+            })) || [])
+        ]);
     };
 
     const images = useMemo(() => {

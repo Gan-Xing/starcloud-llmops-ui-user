@@ -22,16 +22,16 @@ import imgMain from 'assets/images/auth/img-a2-login.svg';
 // carousel items
 const items: AuthSliderProps[] = [
     {
-        title: '海量优质模板',
-        description: '300+模板免费使用'
+        title: '应用市场',
+        description: '集成了300+跨境工作的预训练应用，10S生成文案'
     },
     {
-        title: 'AI文案一键生成',
-        description: '10秒生成专业文案'
+        title: '自由绘图',
+        description: '一步生成精美图片，快速抠图，提升图片质量'
     },
     {
-        title: '自定义AI模板',
-        description: '可以创建自己的AI模板,分享给好友使用'
+        title: '定制机器人',
+        description: '通过角色设定和学习素材，生成定制版机器人'
     }
 ];
 
@@ -41,9 +41,9 @@ const Login = () => {
     const theme = useTheme();
     const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
     const matchDownMD = useMediaQuery(theme.breakpoints.down('lg'));
-    const { setInvitationCode } = infoStore();
+    const { setuse } = infoStore();
     useEffect(() => {
-        setInvitationCode(null);
+        setuse({});
     }, []);
     return (
         <AuthWrapper2>

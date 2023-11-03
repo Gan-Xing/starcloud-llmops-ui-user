@@ -2,7 +2,7 @@ export interface Item {
     uid: string;
     name: string;
     description: string;
-    categories: string[];
+    category: string;
     tags: string[];
     updateTime: number;
     creatorName: string;
@@ -16,7 +16,10 @@ export interface Execute {
 export interface Details {
     name: string;
     description: string;
-    categories: string[];
+    category: string;
+    icon?: string;
+    sort?: string;
+    type?: string;
     scenes: string[];
     tags: string[];
     example: string;
@@ -32,10 +35,14 @@ export interface Anyevent {
     initialValues: {
         name: string;
         description: string;
-        categories: string[];
+        category: string;
         tags: string[];
     };
+    appModel: { label: string; value: string }[] | undefined;
+    sort: undefined | string;
+    type: undefined | string;
     setValues: (data: { name: string; value: string | string[] }) => void;
+    setDetail_icon: (data: any) => void;
 }
 export type Rows = {
     field: string;

@@ -1,4 +1,4 @@
-import { Button, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { Button, FormControl, InputLabel, MenuItem, Select, TextField, Tooltip } from '@mui/material';
 import { Col, Input, Row } from 'antd';
 
 import CasinoIcon from '@mui/icons-material/Casino';
@@ -6,6 +6,7 @@ import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import { Slider } from '@mui/material';
+import { getAccessToken } from 'utils/auth';
 
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -20,61 +21,54 @@ import { t } from 'hooks/web/useI18n';
 import { useEffect, useState } from 'react';
 import userInfoStore from 'store/entitlementAction';
 import { containsChineseCharactersAndSymbols, removeFalseProperties } from 'utils/validate';
-import { createText2Img, getImgMeta, translateText } from '../../../../api/picture/create';
+import { createText2Img, variantsImage, getImgMeta, translateText } from '../../../../api/picture/create';
 import { useWindowSize } from '../../../../hooks/useWindowSize';
 import { IImageListType } from '../index';
 import './index.scss';
 
 import AppModal from './appModal';
 import { PermissionUpgradeModal } from 'views/template/myChat/createChat/components/modal/permissionUpgradeModal';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import { dispatch } from 'store';
+import { openSnackbar } from 'store/slices/snackbar';
 
 const { Dragger } = Upload;
 
 const marks = [
     {
         value: 1,
-        label: '7:4',
-        data: '896x512'
+        label: '16:9',
+        data: '1024x576'
     },
     {
         value: 2,
-        label: '3:2',
-        data: '768x512'
+        label: '4:3',
+        data: '1024x768'
     },
     {
         value: 3,
-        label: '4:3',
-        data: '683x512'
+        label: '8:7',
+        data: ' 1024x896'
     },
     {
         value: 4,
-        label: '5:4',
-        data: '640x512'
+        label: '1:1',
+        data: '1024x1024'
     },
     {
         value: 5,
-        label: '1:1',
-        data: '512x512'
+        label: '7:8',
+        data: '896x1024'
     },
     {
         value: 6,
-        label: '4:5',
-        data: '512x640'
+        label: '3:4',
+        data: '768x1024'
     },
     {
         value: 7,
-        label: '3:4',
-        data: '512x683'
-    },
-    {
-        value: 8,
-        label: '2:3',
-        data: '512x768'
-    },
-    {
-        value: 9,
-        label: '4:7',
-        data: '512x896'
+        label: '9:16',
+        data: '576x1024'
     }
 ];
 
@@ -86,6 +80,7 @@ const { TextArea } = Input;
 
 type IPictureCreateMenuProps = {
     menuVisible: boolean;
+    setLoading?: (data: boolean) => void;
     setMenuVisible: (menuVisible: boolean) => void;
     setImgList: (imgList: IImageListType) => void;
     imgList: IImageListType;
@@ -101,6 +96,7 @@ type IPictureCreateMenuProps = {
     setIsFetch: (flag: boolean) => void;
     inputValueTranslate: boolean;
     setInputValueTranslate: (flag: boolean) => void;
+    mode?: string;
 };
 
 export type IParamsType = {
@@ -162,6 +158,7 @@ const getBase64 = (img: RcFile, callback: (url: string) => void) => {
 export const PictureCreateMenu = ({
     setMenuVisible,
     menuVisible,
+    setLoading,
     setImgList,
     imgList,
     width,
@@ -175,7 +172,8 @@ export const PictureCreateMenu = ({
     setIsFirst,
     setIsFetch,
     setInputValueTranslate,
-    inputValueTranslate
+    inputValueTranslate,
+    mode
 }: IPictureCreateMenuProps) => {
     const [visible, setVisible] = useState(false);
     const [showVoidInputValue, setShowVoidInputValue] = useState(false);
@@ -183,12 +181,13 @@ export const PictureCreateMenu = ({
     const [params, setParams] = useState<null | IParamsType>(null);
     const [currentStyle, setCurrentStyle] = useState('');
     const [seed, setSeed] = useState<number>();
-    const [step, setStep] = useState<number>();
+    const [step, setStep] = useState<number>(30);
     const [strength, setStrength] = useState<number>();
     const [uploadFile, setUploadFile] = useState<string>('');
     const [showImg, setShowImg] = useState(false);
-    const [imageStrength, setImageStrength] = useState(45);
-    const [selectModel, setSelectModel] = useState<string>('stable-diffusion-xl-beta-v2-2-2');
+    const [showStyle, setShowStyle] = useState(false);
+    const [imageStrength, setImageStrength] = useState(0.5);
+    const [selectModel, setSelectModel] = useState<string>('stable-diffusion-xl-1024-v1-0');
     const [voidInputValueTranslate, setVoidInputValueTranslate] = useState(true);
     const [appOpen, setAppOpen] = useState(false);
     const [openToken, setOpenToken] = useState(false);
@@ -239,7 +238,7 @@ export const PictureCreateMenu = ({
     }, []);
 
     useEffect(() => {
-        if (params?.examplePrompt) {
+        if (params?.examplePrompt && mode !== '裂变') {
             const randomIndex = Math.floor(Math.random() * params?.examplePrompt.length);
             translateText({
                 textList: [params?.examplePrompt?.[randomIndex].value],
@@ -265,11 +264,30 @@ export const PictureCreateMenu = ({
     };
 
     const props: UploadProps = {
+        name: 'image',
+        showUploadList: false,
+        action: `${process.env.REACT_APP_BASE_URL}${process.env.REACT_APP_API_URL}/llm/image/upload`,
+        headers: {
+            Authorization: 'Bearer ' + getAccessToken()
+        },
+        onChange(info) {
+            if (info.file.status === 'uploading') {
+                console.log(info);
+            } else if (info.file.status === 'done') {
+                setUploadFile(info?.file?.response?.data?.url);
+            }
+        },
+        onDrop(e) {
+            console.log('Dropped files', e.dataTransfer.files);
+        }
+    };
+    //模拟上传
+    const props1: UploadProps = {
         name: 'file',
-        multiple: true,
-        fileList: [],
         customRequest: async ({ file, onSuccess, onError }) => {
             try {
+                console.log(file, onSuccess);
+
                 // 模拟文件上传请求（这里使用了setTimeout来模拟异步请求）
                 getBase64(file as RcFile, (url) => {
                     setUploadFile(url);
@@ -284,9 +302,16 @@ export const PictureCreateMenu = ({
     };
 
     const handleCreate = async () => {
+        if (!uploadFile && mode === '裂变') {
+            PubSub.publish('global.error', { message: '请上传参考图', type: 'error' });
+            return false;
+        }
         if (!inputValue) {
             PubSub.publish('global.error', { message: '请填写创意描述', type: 'error' });
             return false;
+        }
+        if (mode === '裂变') {
+            setLoading && setLoading(true);
         }
         setIsFetch(true);
 
@@ -295,14 +320,14 @@ export const PictureCreateMenu = ({
             width: width,
             height: height,
             samples,
-            style_preset: currentStyle,
-            image_strength: imageStrength / 100,
+            stylePreset: currentStyle,
+            imageStrength: 1 - imageStrength,
             seed: seed,
             steps: step,
-            negative_prompt: voidInputValue,
+            negativePrompt: voidInputValue,
             engine: selectModel,
-            init_image: uploadFile,
-            guidance_strength: strength
+            initImage: uploadFile,
+            guidanceStrength: strength
         };
 
         setInputValueTranslate(true);
@@ -331,30 +356,45 @@ export const PictureCreateMenu = ({
                     sourceLanguage: 'zh',
                     targetLanguage: 'en'
                 });
-                imageRequest.negative_prompt = resVoidTranslate.translatedList[0].translated;
+                imageRequest.negativePrompt = resVoidTranslate.translatedList[0].translated;
                 setVoidInputValue(resVoidTranslate.translatedList[0].translated);
             } catch (e) {
-                imageRequest.negative_prompt = voidInputValue;
+                imageRequest.negativePrompt = voidInputValue;
                 setVoidInputValue(voidInputValue);
             }
         }
 
         try {
-            const res = await createText2Img({
-                scene: 'WEB_IMAGE',
-                appUid: 'BASE_GENERATE_IMAGE',
-                imageRequest: removeFalseProperties(imageRequest)
-            });
-            const benefitsRes = await userBenefits();
-            setUserInfo(benefitsRes);
+            if (mode === '裂变') {
+                const res = await variantsImage({
+                    scene: 'IMAGE_VARIANTS',
+                    appUid: 'VARIANTS_IMAGE',
+                    imageRequest: removeFalseProperties(imageRequest)
+                });
+                const benefitsRes = await userBenefits();
+                setUserInfo(benefitsRes);
 
-            setIsFetch(false);
-            setIsFirst(false);
-            setImgList([res, ...imgList] || []);
+                setIsFetch(false);
+                setIsFirst(false);
+                setImgList([res?.response, ...imgList] || []);
+            } else {
+                const res = await createText2Img({
+                    scene: 'WEB_IMAGE',
+                    appUid: 'GENERATE_IMAGE',
+                    imageRequest: removeFalseProperties(imageRequest)
+                });
+                const benefitsRes = await userBenefits();
+                setUserInfo(benefitsRes);
+
+                setIsFetch(false);
+                setIsFirst(false);
+                setImgList([res?.response, ...imgList] || []);
+            }
         } catch (e: any) {
             if (e?.code === 2008002007) {
                 setOpenToken(true);
             }
+            setLoading && setLoading(false);
             setIsFetch(false);
         }
     };
@@ -368,34 +408,134 @@ export const PictureCreateMenu = ({
                         'overflow-x-hidden flex flex-col items-center pb-2 w-full h-[calc(100%-70px)] xs:overflow-y-auto lg:overflow-y-hidden  hover:overflow-y-auto'
                     }
                 >
-                    <Row className={'w-[100%] p-[16px] rounded-xl bg-white'}>
-                        <span className={'text-base font-medium flex items-center'}>风格模型</span>
-                        <div
-                            style={{ scrollbarGutter: 'stable' }}
-                            className={
-                                'grid gap-4 grid-cols-3 w-full h-[375px] mt-3  p-[4px] xs:overflow-y-auto lg:overflow-y-hidden hover:overflow-y-auto'
-                            }
-                        >
-                            {params?.stylePreset.map((item, index) => (
-                                <div key={index} className="w-full">
-                                    <img
-                                        src={item.image}
-                                        alt={item.label}
-                                        className={` w-[calc(100%-2px)] rounded cursor-pointer  ${
-                                            item.value === currentStyle ? 'outline outline-offset-2 outline-[#673ab7]' : ''
-                                        } hover:outline hover:outline-offset-2 hover:outline-[#673ab7]`}
-                                        onClick={() => setCurrentStyle(item.value)}
-                                    />
-                                    <span className="text-sm">{t(`textToImage.${item.label}`)}</span>
+                    {mode !== '裂变' && (
+                        <Row className={'w-[100%] p-[16px] mb-[15px] rounded-xl bg-white'}>
+                            <span className={'text-base font-medium flex items-center'}>风格模型</span>
+                            <div
+                                style={{ scrollbarGutter: 'stable' }}
+                                className={
+                                    'grid gap-4 grid-cols-3 w-full h-[375px] mt-3  p-[4px] xs:overflow-y-auto lg:overflow-y-hidden hover:overflow-y-auto'
+                                }
+                            >
+                                {params?.stylePreset.map((item, index) => (
+                                    <div key={index} className="w-full">
+                                        <img
+                                            src={item.image}
+                                            alt={item.label}
+                                            className={` w-[calc(100%-2px)] rounded cursor-pointer  ${
+                                                item.value === currentStyle ? 'outline outline-offset-2 outline-[#673ab7]' : ''
+                                            } hover:outline hover:outline-offset-2 hover:outline-[#673ab7]`}
+                                            onClick={() => setCurrentStyle(item.value)}
+                                        />
+                                        <span className="text-sm">{t(`textToImage.${item.label}`)}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </Row>
+                    )}
+                    {mode === '裂变' && (
+                        <Row className={'w-[100%] p-[16px] rounded-xl bg-white flex flex-col'}>
+                            <div className="flex items-center cursor-pointer justify-between">
+                                <div className="flex items-center cursor-pointer" onClick={() => setShowImg(!showImg)}>
+                                    <span className={'text-base font-medium'}>参考图</span>
+                                    {!showImg ? <ExpandMoreIcon /> : <ExpandLessIcon />}
                                 </div>
-                            ))}
-                        </div>
-                    </Row>
-
+                                {uploadFile && <DeleteOutlineIcon className="text-base" onClick={() => setUploadFile('')} />}
+                            </div>
+                            {!showImg && (
+                                <div className="mt-[15px]">
+                                    {uploadFile ? (
+                                        <div className="w-full justify-center flex flex-col items-center">
+                                            <Dragger {...props} className="w-full">
+                                                <div className="flex justify-center">
+                                                    <div className="h-[140px] w-[140px] overflow-hidden">
+                                                        <img
+                                                            className="upload_img h-[140px] object-cover aspect-square"
+                                                            src={uploadFile}
+                                                            alt={uploadFile}
+                                                            style={{
+                                                                filter: `blur(${((1 - imageStrength) * 100) / 10}px)`
+                                                            }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </Dragger>
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    marginTop: '15px',
+                                                    justifyContent: 'center',
+                                                    flexDirection: 'column',
+                                                    width: '100%'
+                                                }}
+                                            >
+                                                <div className="flex justify-between items-center">
+                                                    <span className={'text-base font-medium'}>生成图与原图相似度</span>
+                                                    <TextField
+                                                        type={'number'}
+                                                        size="small"
+                                                        className="w-[50px]"
+                                                        sx={{
+                                                            input: {
+                                                                padding: '5px !important'
+                                                            }
+                                                        }}
+                                                        disabled
+                                                        value={imageStrength}
+                                                    />
+                                                </div>
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        marginTop: '5px',
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
+                                                        width: '100%'
+                                                    }}
+                                                    className="flex-col"
+                                                >
+                                                    <div
+                                                        style={{
+                                                            width: '92%'
+                                                        }}
+                                                    >
+                                                        <Slider
+                                                            color="secondary"
+                                                            defaultValue={0.5}
+                                                            valueLabelDisplay="auto"
+                                                            aria-labelledby="discrete-slider-small-steps"
+                                                            step={0.1}
+                                                            min={0}
+                                                            max={1}
+                                                            onChange={(e, value, number) => setImageStrength(value as number)}
+                                                        />
+                                                    </div>
+                                                    <div className="flex items-center justify-between w-full">
+                                                        <span>低</span>
+                                                        <span>高</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <Dragger {...props}>
+                                            <div>
+                                                <p className="ant-upload-drag-icon">
+                                                    <CloudUploadOutlinedIcon className="text-4xl" />
+                                                </p>
+                                                <p className="ant-upload-text">上传图片以创建变体</p>
+                                                <p className="ant-upload-text text-xs">最大上传大小1024*1024</p>
+                                            </div>
+                                        </Dragger>
+                                    )}
+                                </div>
+                            )}
+                        </Row>
+                    )}
                     <Row className={'w-[100%] p-[16px] rounded-xl bg-white mt-[15px] relative p_textarea'}>
                         <div className={'text-base font-medium flex items-center justify-between w-full'}>
                             <div className=" flex items-center">
-                                <div className="flex items-center justify-between">创意描述</div>
+                                <div className="flex items-center justify-between">{mode === '裂变' ? '强化内容描述' : '创意描述'}</div>
                                 {!inputValueTranslate ? (
                                     <MuiTooltip title="翻译成英文" arrow placement="top">
                                         <svg
@@ -451,9 +591,11 @@ export const PictureCreateMenu = ({
                                 <Button color="secondary" size="small" variant="text" onClick={() => setAppOpen(true)}>
                                     一键AI生成
                                 </Button>
-                                <MuiTooltip title="随机生成描述示例" arrow placement="top">
-                                    <CasinoIcon className="cursor-pointer text-base" onClick={onDice} />
-                                </MuiTooltip>
+                                {mode !== '裂变' && (
+                                    <MuiTooltip title="随机生成描述示例" arrow placement="top">
+                                        <CasinoIcon className="cursor-pointer text-base" onClick={onDice} />
+                                    </MuiTooltip>
+                                )}
                             </div>
                         </div>
                         <TextArea
@@ -467,7 +609,7 @@ export const PictureCreateMenu = ({
                                 }
                             }}
                             value={inputValue}
-                            placeholder={'请输入你的创意'}
+                            placeholder={mode === '裂变' ? '输入图片中想要强化/突出的内容的描述，例如：突出西装领' : '请输入你的创意'}
                             // maxLength={800}
                             // showCount
                         />
@@ -619,12 +761,12 @@ export const PictureCreateMenu = ({
                                         }}
                                         color="secondary"
                                         aria-label="Always visible"
-                                        defaultValue={5}
+                                        defaultValue={4}
                                         step={1}
                                         marks={marks}
                                         valueLabelDisplay="auto"
                                         min={1}
-                                        max={9}
+                                        max={7}
                                         valueLabelFormat={valueLabelFormat}
                                         onChange={(e, value, number) => {
                                             const data = marks.find((v) => v?.value === value)?.data;
@@ -635,119 +777,190 @@ export const PictureCreateMenu = ({
                                 </div>
                             </div>
                         </div>
-                        <div style={{ width: '100%', display: 'flex', flexWrap: 'wrap', marginTop: '5px', justifyContent: 'center' }}>
-                            <div className={'text-base font-medium mt-[15px] w-full flex items-center'}>
-                                生成张数
-                                <MuiTooltip title="生成张数越多，耗时越久" arrow placement="top">
-                                    <HelpOutlineOutlinedIcon className="text-base ml-1 cursor-pointer" />
-                                </MuiTooltip>
-                            </div>
-                            <div style={{ width: '92%', display: 'flex', marginTop: '5px' }}>
-                                <Slider
-                                    sx={{
-                                        '& .MuiSlider-thumb': {
-                                            width: 14,
-                                            height: 14
-                                        }
-                                    }}
-                                    color="secondary"
-                                    defaultValue={samples}
-                                    valueLabelDisplay="auto"
-                                    aria-labelledby="discrete-slider-small-steps"
-                                    marks
-                                    step={1}
-                                    min={1}
-                                    max={8}
-                                    onChange={(e, value, number) => setSamples(value as number)}
-                                />
-                            </div>
-                        </div>
-                    </Row>
-                    <Row className={'w-[100%] mt-[15px] p-[16px] rounded-xl bg-white flex flex-col'}>
-                        <div className="flex items-center cursor-pointer justify-between">
-                            <div className="flex items-center cursor-pointer" onClick={() => setShowImg(!showImg)}>
-                                <span className={'text-base font-medium'}>图像</span>
-                                {showImg ? <ExpandMoreIcon /> : <ExpandLessIcon />}
-                            </div>
-                            {uploadFile && <DeleteOutlineIcon className="text-base" onClick={() => setUploadFile('')} />}
-                        </div>
-                        {showImg && (
-                            <div className="mt-[15px]">
-                                {uploadFile ? (
-                                    <div className="w-full justify-center flex flex-col items-center">
-                                        <Dragger {...props} className="w-full">
-                                            <div className="flex justify-center">
-                                                <div className="h-[140px] w-[140px] overflow-hidden">
-                                                    <img
-                                                        className="upload_img h-[140px] object-cover aspect-square"
-                                                        src={uploadFile}
-                                                        alt={uploadFile}
-                                                        style={{
-                                                            filter: `blur(${imageStrength / 10}px)`
-                                                        }}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </Dragger>
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                marginTop: '15px',
-                                                justifyContent: 'center',
-                                                flexDirection: 'column',
-                                                width: '100%'
-                                            }}
-                                        >
-                                            <span className={'text-base font-medium'}>图像强度</span>
-                                            <div
-                                                style={{
-                                                    display: 'flex',
-                                                    marginTop: '5px',
-                                                    justifyContent: 'center',
-                                                    width: '100%'
-                                                }}
-                                            >
-                                                <div
-                                                    style={{
-                                                        width: '92%'
-                                                    }}
-                                                >
-                                                    <Slider
-                                                        color="secondary"
-                                                        defaultValue={45}
-                                                        valueLabelDisplay="auto"
-                                                        aria-labelledby="discrete-slider-small-steps"
-                                                        step={1}
-                                                        min={0}
-                                                        max={100}
-                                                        onChange={(e, value, number) => setImageStrength(value as number)}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <Dragger {...props}>
-                                        <div>
-                                            <p className="ant-upload-drag-icon">
-                                                <CloudUploadOutlinedIcon className="text-4xl" />
-                                            </p>
-                                            <p className="ant-upload-text">上传图片以创建变体</p>
-                                        </div>
-                                    </Dragger>
-                                )}
+                        {mode !== '裂变' && (
+                            <div style={{ width: '100%', display: 'flex', flexWrap: 'wrap', marginTop: '5px', justifyContent: 'center' }}>
+                                <div className={'text-base font-medium mt-[15px] w-full flex items-center'}>
+                                    生成张数
+                                    <MuiTooltip title="生成张数越多，耗时越久" arrow placement="top">
+                                        <HelpOutlineOutlinedIcon className="text-base ml-1 cursor-pointer" />
+                                    </MuiTooltip>
+                                </div>
+                                <div style={{ width: '92%', display: 'flex', marginTop: '5px' }}>
+                                    <Slider
+                                        sx={{
+                                            '& .MuiSlider-thumb': {
+                                                width: 14,
+                                                height: 14
+                                            }
+                                        }}
+                                        color="secondary"
+                                        defaultValue={samples}
+                                        valueLabelDisplay="auto"
+                                        aria-labelledby="discrete-slider-small-steps"
+                                        marks
+                                        step={1}
+                                        min={1}
+                                        max={8}
+                                        onChange={(e, value, number) => setSamples(value as number)}
+                                    />
+                                </div>
                             </div>
                         )}
                     </Row>
-                    <Row className={'w-[100%] mt-[15px] p-[16px] rounded-xl bg-white'}>
-                        <span className={'text-base font-medium flex items-center'}>
-                            高级
-                            {visible ? (
-                                <VisibilityOutlinedIcon className={'cursor-pointer ml-1 text-lg'} onClick={() => setVisible(!visible)} />
-                            ) : (
-                                <VisibilityOffOutlinedIcon className={'cursor-pointer ml-1 text-lg'} onClick={() => setVisible(!visible)} />
+                    {mode !== '裂变' && (
+                        <Row className={'w-[100%] mt-[15px] p-[16px] rounded-xl bg-white flex flex-col'}>
+                            <div className="flex items-center cursor-pointer justify-between">
+                                <div className="flex items-center cursor-pointer" onClick={() => setShowImg(!showImg)}>
+                                    <span className={'text-base font-medium'}>参考图</span>
+                                    {showImg ? <ExpandMoreIcon /> : <ExpandLessIcon />}
+                                </div>
+                                {uploadFile && <DeleteOutlineIcon className="text-base" onClick={() => setUploadFile('')} />}
+                            </div>
+                            {showImg && (
+                                <div className="mt-[15px]">
+                                    {uploadFile ? (
+                                        <div className="w-full justify-center flex flex-col items-center">
+                                            <Dragger {...props} className="w-full">
+                                                <div className="flex justify-center">
+                                                    <div className="h-[140px] w-[140px] overflow-hidden">
+                                                        <img
+                                                            className="upload_img h-[140px] object-cover aspect-square"
+                                                            src={uploadFile}
+                                                            alt={uploadFile}
+                                                            style={{
+                                                                filter: `blur(${((1 - imageStrength) * 100) / 10}px)`
+                                                            }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </Dragger>
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    marginTop: '15px',
+                                                    justifyContent: 'center',
+                                                    flexDirection: 'column',
+                                                    width: '100%'
+                                                }}
+                                            >
+                                                <div className="flex justify-between items-center">
+                                                    <span className={'text-base font-medium'}>生成图与原图相似度</span>
+                                                    <TextField
+                                                        type={'number'}
+                                                        size="small"
+                                                        className="w-[50px]"
+                                                        disabled
+                                                        value={imageStrength}
+                                                        sx={{
+                                                            input: {
+                                                                padding: '5px !important'
+                                                            }
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        marginTop: '5px',
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
+                                                        width: '100%'
+                                                    }}
+                                                    className="flex-col"
+                                                >
+                                                    <div
+                                                        style={{
+                                                            width: '92%'
+                                                        }}
+                                                    >
+                                                        <Slider
+                                                            color="secondary"
+                                                            defaultValue={0.5}
+                                                            valueLabelDisplay="auto"
+                                                            aria-labelledby="discrete-slider-small-steps"
+                                                            step={0.1}
+                                                            min={0}
+                                                            max={1}
+                                                            onChange={(e, value, number) => setImageStrength(value as number)}
+                                                        />
+                                                    </div>
+                                                    <div className="flex items-center justify-between w-full">
+                                                        <span>低</span>
+                                                        <span>高</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <Dragger {...props}>
+                                            <div>
+                                                <p className="ant-upload-drag-icon">
+                                                    <CloudUploadOutlinedIcon className="text-4xl" />
+                                                </p>
+                                                <p className="ant-upload-text">上传图片以创建变体</p>
+                                                <p className="ant-upload-text text-xs">最大上传大小1024*1024</p>
+                                            </div>
+                                        </Dragger>
+                                    )}
+                                </div>
                             )}
-                        </span>
+                        </Row>
+                    )}
+                    {mode === '裂变' && (
+                        <Row className={'w-[100%]  mt-[15px] p-[16px] rounded-xl bg-white'}>
+                            <div
+                                className="cursor-pointer flex"
+                                onClick={() => {
+                                    setShowStyle(!showStyle);
+                                }}
+                            >
+                                <span className={'text-base font-medium flex items-center'}>风格模型</span>
+                                {showStyle ? <ExpandMoreIcon /> : <ExpandLessIcon />}
+                            </div>
+                            {showStyle && (
+                                <div
+                                    style={{ scrollbarGutter: 'stable' }}
+                                    className={
+                                        'grid gap-4 grid-cols-3 w-full h-[375px] mt-3  p-[4px] xs:overflow-y-auto lg:overflow-y-hidden hover:overflow-y-auto'
+                                    }
+                                >
+                                    {params?.stylePreset.map((item, index) => (
+                                        <div key={index} className="w-full">
+                                            <img
+                                                src={item.image}
+                                                alt={item.label}
+                                                className={` w-[calc(100%-2px)] rounded cursor-pointer  ${
+                                                    item.value === currentStyle ? 'outline outline-offset-2 outline-[#673ab7]' : ''
+                                                } hover:outline hover:outline-offset-2 hover:outline-[#673ab7]`}
+                                                onClick={() => setCurrentStyle(item.value)}
+                                            />
+                                            <span className="text-sm">{t(`textToImage.${item.label}`)}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </Row>
+                    )}
+                    <Row className={'w-[100%] mt-[15px] p-[16px] rounded-xl bg-white'}>
+                        <div className="flex justify-between items-center w-full">
+                            <span className={'text-base font-medium flex items-center'}>
+                                高级
+                                {visible ? (
+                                    <VisibilityOutlinedIcon
+                                        className={'cursor-pointer ml-1 text-lg'}
+                                        onClick={() => setVisible(!visible)}
+                                    />
+                                ) : (
+                                    <VisibilityOffOutlinedIcon
+                                        className={'cursor-pointer ml-1 text-lg'}
+                                        onClick={() => setVisible(!visible)}
+                                    />
+                                )}
+                            </span>
+                            <Tooltip title={'宽高范围为1-1024'}>
+                                <HelpOutlineIcon className="text-base ml-1 cursor-pointer tips" />
+                            </Tooltip>
+                        </div>
                         {visible && (
                             <div className={'px-1 mt-[15px] grid grid-cols-2 gap-4'}>
                                 <TextField
@@ -756,7 +969,19 @@ export const PictureCreateMenu = ({
                                     label="宽度"
                                     fullWidth
                                     autoComplete="given-name"
-                                    onChange={(e) => setWidth(e.target.value as unknown as number)}
+                                    inputProps={{
+                                        max: 1024,
+                                        min: 1
+                                    }}
+                                    onChange={(e) => {
+                                        if ((e.target.value as unknown as number) > 1024) {
+                                            setWidth(1024);
+                                        } else if ((e.target.value as unknown as number) < 0) {
+                                            setWidth(1);
+                                        } else {
+                                            setWidth(e.target.value as unknown as number);
+                                        }
+                                    }}
                                 />
                                 <TextField
                                     value={height}
@@ -764,7 +989,19 @@ export const PictureCreateMenu = ({
                                     label="高度"
                                     fullWidth
                                     autoComplete="given-name"
-                                    onChange={(e) => setHeight(e.target.value as unknown as number)}
+                                    inputProps={{
+                                        max: 1024,
+                                        min: 1
+                                    }}
+                                    onChange={(e) => {
+                                        if ((e.target.value as unknown as number) > 1024) {
+                                            setHeight(1024);
+                                        } else if ((e.target.value as unknown as number) < 0) {
+                                            setHeight(1);
+                                        } else {
+                                            setHeight(e.target.value as unknown as number);
+                                        }
+                                    }}
                                 />
                                 <TextField
                                     type={'number'}
@@ -775,7 +1012,7 @@ export const PictureCreateMenu = ({
                                     onChange={(e) => setStrength(e.target.value as unknown as number)}
                                 />
                                 <TextField
-                                    defaultValue={50}
+                                    defaultValue={30}
                                     type={'number'}
                                     label="采样步骤"
                                     fullWidth
@@ -793,6 +1030,7 @@ export const PictureCreateMenu = ({
                                     <FormControl sx={{ width: '100%' }}>
                                         <InputLabel id="age-select">模型</InputLabel>
                                         <Select
+                                            disabled
                                             className="w-full"
                                             onChange={(e: any) => setSelectModel(e.target.value)}
                                             value={selectModel}
@@ -832,11 +1070,15 @@ export const PictureCreateMenu = ({
                     align={'middle'}
                 >
                     <Button variant="contained" color="secondary" style={{ width: '94%' }} onClick={() => handleCreate()}>
-                        生成
+                        生成 <span className="text-xs opacity-50">{mode !== '裂变' ? `（消耗${samples}点作图）` : '（消耗4点作图）'}</span>
                     </Button>
                 </Row>
             </Col>
-            <PermissionUpgradeModal open={openToken} handleClose={() => setOpenToken(false)} title={'当前使用的魔力值不足'} />
+            <PermissionUpgradeModal
+                open={openToken}
+                handleClose={() => setOpenToken(false)}
+                title={'当前魔法豆不足，升级会员，立享五折优惠！'}
+            />
         </>
     );
 };

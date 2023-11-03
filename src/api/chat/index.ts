@@ -314,14 +314,38 @@ export const shareDetail = (shareKey: string) => {
  * 启用源数据
  * @param shareKey
  */
-export const upDoc = (data: string) => {
-    return request.post({ url: `/llm/dataset-source-data/delete`, data });
+export const upDoc = (params: any) => {
+    return request.post({ url: `/llm/dataset-source-data/enable`, params });
 };
 
 /**
  * 禁用源数据
  * @param shareKey
  */
-export const disDoc = (shareKey: string) => {
-    return request.post({ url: `/share/conversation/disable/${shareKey}` });
+export const disDoc = (params: any) => {
+    return request.post({ url: `/llm/dataset-source-data/disable`, params });
+};
+
+/**
+ * 绑定微信公众号
+ * @param shareKey
+ */
+export const bindCreate = (data: any) => {
+    return request.post({ url: `/llm/wechat/bind/create`, data });
+};
+
+/**
+ * 修改绑定微信公众号
+ * @param shareKey
+ */
+export const bindModify = (uid: any, data: any) => {
+    return request.post({ url: `/llm/wechat/bind/modify/${uid}`, data });
+};
+
+/**
+ * 取消绑定微信公众号
+ * @param shareKey
+ */
+export const bindDelete = (data: any) => {
+    return request.post({ url: `/llm/wechat/bind/delete/${data}` });
 };

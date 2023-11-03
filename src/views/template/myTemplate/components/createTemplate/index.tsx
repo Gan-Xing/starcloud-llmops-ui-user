@@ -1,7 +1,3 @@
-import AccessAlarm from '@mui/icons-material/AccessAlarm';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import DeleteIcon from '@mui/icons-material/Delete';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {
     Box,
     Button,
@@ -18,8 +14,9 @@ import {
     Tabs,
     Typography
 } from '@mui/material';
-import ErrorIcon from '@mui/icons-material/ErrorOutline';
-import { userBenefits } from 'api/template';
+import { Image, Select } from 'antd';
+import { ArrowBack, Delete, MoreVert, ErrorOutline } from '@mui/icons-material';
+import { userBenefits, metadata } from 'api/template';
 import { executeApp } from 'api/template/fetch';
 import { appCreate, appModify, getApp, getRecommendApp } from 'api/template/index';
 import { t } from 'hooks/web/useI18n';
@@ -37,8 +34,18 @@ import ApplicationAnalysis from 'views/template/applicationAnalysis';
 import Upload from './upLoad';
 import { del } from 'api/template';
 import marketStore from 'store/market';
+import useUserStore from 'store/user';
 import _ from 'lodash-es';
 import { PermissionUpgradeModal } from 'views/template/myChat/createChat/components/modal/permissionUpgradeModal';
+interface Items {
+    label: string;
+    value: string;
+}
+interface AppModels {
+    aiModel?: Items[];
+    language?: Items[];
+    type?: Items[];
+}
 export function TabPanel({ children, value, index, ...other }: TabsProps) {
     return (
         <div role="tabpanel" hidden={value !== index} id={`simple-tabpanel-${index}`} aria-labelledby={`simple-tab-${index}`} {...other}>
@@ -74,6 +81,9 @@ function CreateDetail() {
     let conversationUid: undefined | string = undefined;
     //token不足
     const [tokenOpen, setTokenOpen] = useState(false);
+    //类型 模型类型
+    const [appModels, setAppModel] = useState<AppModels>({});
+    const [aiModel, setAiModel] = useState('gpt-3.5-turbo');
     //判断是保存还是切换tabs
     const changeData = (data: Execute) => {
         const { stepId, index }: { stepId: string; index: number } = data;
@@ -93,6 +103,7 @@ function CreateDetail() {
                 appUid: searchParams.get('uid') ? searchParams.get('uid') : searchParams.get('recommend'),
                 stepId: stepId,
                 appReqVO: detailRef.current,
+                aiModel,
                 conversationUid
             });
 
@@ -198,6 +209,9 @@ function CreateDetail() {
     };
     useEffect(() => {
         getList();
+        metadata().then((res) => {
+            setAppModel(res);
+        });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
     const getList = (data: string | null = null) => {
@@ -228,6 +242,7 @@ function CreateDetail() {
         detailRef.current = _.cloneDeep(newValue);
         setDetail(newValue);
     };
+    const [openUpgradeModel, setOpenUpgradeModel] = useState(false);
     const [perform, setPerform] = useState('perform');
     //设置name desc
     const setData = (data: any) => {
@@ -238,6 +253,17 @@ function CreateDetail() {
         setDetail({
             ..._.cloneDeep(detailRef.current),
             [data.name]: data.value
+        });
+    };
+    //设置icons
+    const setDetail_icon = (data: any) => {
+        detailRef.current = {
+            ..._.cloneDeep(detail),
+            icon: data
+        };
+        setDetail({
+            ..._.cloneDeep(detailRef.current),
+            icon: data
         });
     };
     //设置执行的步骤
@@ -378,6 +404,8 @@ function CreateDetail() {
     const getStatus = (data: boolean) => {
         setflag(data);
     };
+    const permissions = useUserStore((state) => state.permissions);
+    const { Option } = Select;
     return (
         <Card>
             <CardHeader
@@ -385,7 +413,7 @@ function CreateDetail() {
                 avatar={
                     <Button
                         variant="contained"
-                        startIcon={<ArrowBackIcon />}
+                        startIcon={<ArrowBack />}
                         color="secondary"
                         onClick={() => navigate('/template/createCenter')}
                     >
@@ -406,7 +434,7 @@ function CreateDetail() {
                                     setDelAnchorEl(e.currentTarget);
                                 }}
                             >
-                                <MoreVertIcon />
+                                <MoreVert />
                             </IconButton>
                         )}
                         <Menu
@@ -431,7 +459,7 @@ function CreateDetail() {
                                 }}
                             >
                                 <ListItemIcon>
-                                    <DeleteIcon color="error" />
+                                    <Delete color="error" />
                                 </ListItemIcon>
                                 <Typography variant="inherit" noWrap>
                                     {t('myApp.delApp')}
@@ -454,7 +482,7 @@ function CreateDetail() {
                         label={
                             <Box display="flex" alignItems="center">
                                 {t('myApp.upload')}
-                                {flag && <ErrorIcon color="warning" sx={{ fontSize: '14px' }} />}
+                                {flag && <ErrorOutline color="warning" sx={{ fontSize: '14px' }} />}
                             </Box>
                         }
                         {...a11yProps(3)}
@@ -470,10 +498,14 @@ function CreateDetail() {
                                 initialValues={{
                                     name: detail?.name,
                                     description: detail?.description,
-                                    categories: detail?.categories,
+                                    category: detail?.category,
                                     tags: detail?.tags
                                 }}
+                                sort={detail?.sort}
+                                type={detail?.type}
+                                appModel={appModels?.type}
                                 setValues={setData}
+                                setDetail_icon={setDetail_icon}
                             />
                         )}
                     </Grid>
@@ -482,29 +514,54 @@ function CreateDetail() {
                             {t('market.debug')}
                         </Typography>
                         <Card elevation={2} sx={{ p: 2 }}>
-                            <Box display="flex" justifyContent="space-between" alignItems="center">
-                                <Box display="flex" justifyContent="space-between" alignItems="center">
-                                    <AccessAlarm sx={{ fontSize: '70px' }} />
+                            <div className="flex justify-between items-end">
+                                <Box display="flex" justifyContent="space-between" alignItems="center" gap={1}>
+                                    {detail?.icon && (
+                                        <Image
+                                            preview={false}
+                                            height={60}
+                                            className="rounded-lg overflow-hidden"
+                                            src={require('../../../../../assets/images/category/' + detail?.icon + '.svg')}
+                                        />
+                                    )}
                                     <Box>
+                                        <Typography variant="h1" sx={{ fontSize: '2rem' }}>
+                                            {detail?.name}
+                                        </Typography>
                                         <Box>
-                                            <Typography variant="h1" sx={{ fontSize: '2rem' }}>
-                                                {detail?.name}
-                                            </Typography>
-                                        </Box>
-                                        <Box>
-                                            {detail?.categories?.map((item: any) => (
-                                                <span key={item}>
-                                                    #{categoryList?.find((el: { code: string }) => el.code === item)?.name}
-                                                </span>
-                                            ))}
+                                            <span>#{detail?.category}</span>
                                             {detail?.tags?.map((el: any) => (
                                                 <Chip key={el} sx={{ marginLeft: 1 }} size="small" label={el} variant="outlined" />
                                             ))}
                                         </Box>
                                     </Box>
                                 </Box>
-                            </Box>
-                            <Divider sx={{ mb: 1 }} />
+                                {appModels.aiModel && (
+                                    <Select
+                                        style={{ width: 100, height: 23 }}
+                                        bordered={false}
+                                        className="rounded-2xl border-[0.5px] border-[#673ab7] border-solid"
+                                        rootClassName="modelSelect"
+                                        popupClassName="modelSelectPopup"
+                                        value={aiModel}
+                                        onChange={(value) => {
+                                            if (value === 'gpt-4' && !permissions.includes('app:execute:llm:gpt4')) {
+                                                setOpenUpgradeModel(true);
+                                                return;
+                                            }
+                                            setPerform(perform + 1);
+                                            setAiModel(value);
+                                        }}
+                                    >
+                                        {appModels.aiModel.map((item: any) => (
+                                            <Option key={item.value} value={item.value}>
+                                                {item.label}
+                                            </Option>
+                                        ))}
+                                    </Select>
+                                )}
+                            </div>
+                            <Divider sx={{ my: 1 }} />
                             <Typography variant="h5" sx={{ fontSize: '1.1rem', mb: 3 }}>
                                 {detail?.description}
                             </Typography>
@@ -547,29 +604,54 @@ function CreateDetail() {
                             {t('market.debug')}
                         </Typography>
                         <Card elevation={2} sx={{ p: 2 }}>
-                            <Box display="flex" justifyContent="space-between" alignItems="center">
-                                <Box display="flex" justifyContent="space-between" alignItems="center">
-                                    <AccessAlarm sx={{ fontSize: '70px' }} />
+                            <div className="flex justify-between items-end">
+                                <Box display="flex" justifyContent="space-between" alignItems="center" gap={1}>
+                                    {detail?.icon && (
+                                        <Image
+                                            preview={false}
+                                            height={60}
+                                            className="rounded-lg overflow-hidden"
+                                            src={require('../../../../../assets/images/category/' + detail?.icon + '.svg')}
+                                        />
+                                    )}
                                     <Box>
+                                        <Typography variant="h1" sx={{ fontSize: '2rem' }}>
+                                            {detail?.name}
+                                        </Typography>
                                         <Box>
-                                            <Typography variant="h1" sx={{ fontSize: '2rem' }}>
-                                                {detail?.name}
-                                            </Typography>
-                                        </Box>
-                                        <Box>
-                                            {detail?.categories?.map((item: any) => (
-                                                <span key={item}>
-                                                    #{categoryList?.find((el: { code: string }) => el.code === item)?.name}
-                                                </span>
-                                            ))}
+                                            <span>#{detail?.category}</span>
                                             {detail?.tags?.map((el: any) => (
                                                 <Chip key={el} sx={{ marginLeft: 1 }} size="small" label={el} variant="outlined" />
                                             ))}
                                         </Box>
                                     </Box>
                                 </Box>
-                            </Box>
-                            <Divider sx={{ mb: 1 }} />
+                                {appModels.aiModel && (
+                                    <Select
+                                        style={{ width: 100, height: 23 }}
+                                        bordered={false}
+                                        className="rounded-2xl border-[0.5px] border-[#673ab7] border-solid"
+                                        rootClassName="modelSelect"
+                                        popupClassName="modelSelectPopup"
+                                        value={aiModel}
+                                        onChange={(value) => {
+                                            if (value === 'gpt-4' && !permissions.includes('app:execute:llm:gpt4')) {
+                                                setOpenUpgradeModel(true);
+                                                return;
+                                            }
+                                            setPerform(perform + 1);
+                                            setAiModel(value);
+                                        }}
+                                    >
+                                        {appModels.aiModel.map((item: any) => (
+                                            <Option key={item.value} value={item.value}>
+                                                {item.label}
+                                            </Option>
+                                        ))}
+                                    </Select>
+                                )}
+                            </div>
+                            <Divider sx={{ my: 1 }} />
                             <Typography variant="h5" sx={{ fontSize: '1.1rem', mb: 3 }}>
                                 {detail?.description}
                             </Typography>
@@ -609,7 +691,14 @@ function CreateDetail() {
                     />
                 )}
             </TabPanel>
-            <PermissionUpgradeModal open={tokenOpen} handleClose={() => setTokenOpen(false)} title={'当前使用的令牌不足'} />
+            {openUpgradeModel && <PermissionUpgradeModal open={openUpgradeModel} handleClose={() => setOpenUpgradeModel(false)} />}
+            {tokenOpen && (
+                <PermissionUpgradeModal
+                    open={tokenOpen}
+                    handleClose={() => setTokenOpen(false)}
+                    title={'当前魔法豆不足，升级会员，立享五折优惠！'}
+                />
+            )}
         </Card>
     );
 }

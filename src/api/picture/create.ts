@@ -12,8 +12,16 @@ export const getImgMeta = () => {
  * 文本生成图片
  * @param data
  */
+export const variantsImage = (data: any) => {
+    return request.post({ url: '/llm/image/variants', data, timeout: 3 * 60 * 1000 });
+};
+
+/**
+ * 图片裂变
+ * @param data
+ */
 export const createText2Img = (data: any) => {
-    return request.post({ url: '/llm/image/text-to-image', data });
+    return request.post({ url: '/llm/image/generate', data, timeout: 3 * 60 * 1000 });
 };
 
 /**
@@ -21,9 +29,16 @@ export const createText2Img = (data: any) => {
  * @returns
  */
 export const getImgList = (data: any) => {
-    return request.get({ url: '/llm/image/history', params: data });
+    return request.post({ url: '/llm/app/log/imageRecords', data });
 };
 
+/**
+ * 图片历史记录
+ * @returns
+ */
+export const history = (data: any) => {
+    return request.post({ url: '/llm/app/log/imageRecords', data });
+};
 /**
  * 翻译文本
  * @returns

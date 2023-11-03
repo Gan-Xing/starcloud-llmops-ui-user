@@ -25,9 +25,8 @@ import {
     Tooltip,
     Link
 } from '@mui/material';
-import { Tag } from 'antd';
+import { Tag, Image } from 'antd';
 import formatDate from 'hooks/useDate';
-import AccessAlarm from '@mui/icons-material/AccessAlarm';
 import CloseIcon from '@mui/icons-material/Close';
 import SubCard from 'ui-component/cards/SubCard';
 import MainCard from 'ui-component/cards/MainCard';
@@ -42,19 +41,27 @@ import marketStore from 'store/market';
 import PicModal from 'views/picture/create/Modal';
 import { getChatRecord } from 'api/chat';
 import { ChatRecord } from '../myChat/createChat/components/ChatRecord';
+import ImageDetail from 'views/picture/components/detail';
 import DetailErr from '../../../ui-component/detailErr';
 import useUserStore from 'store/user';
 interface LogStatistics {
-    messageCount: string;
     createDate: string;
-    elapsedAvg: number;
-    userCount: string;
-    tokens: string;
-    feedbackLikeCount: number;
+    completionCostPoints: number;
+    imageAvgElapsed: number;
+    completionAvgElapsed: number;
+    imageCostPoints: number;
+    completionTokens: number;
+    chatTokens: number;
+    imageSuccessCount: number;
+    completionSuccessCount: number;
 }
 interface Charts {
     title: string;
     data: { x: string; y: string | number }[];
+    key?: boolean;
+    name?: string;
+    subTitle?: string;
+    successData?: { x: string; y: string | number }[];
 }
 interface TableData {
     uid: string;
@@ -72,6 +79,9 @@ interface TableData {
     updateTime: number;
     errorCode?: string;
     errorMsg?: string;
+    tokens?: number;
+    costPoints?: number;
+    userLevels?: string[];
 }
 interface Date {
     label: string;
@@ -143,16 +153,54 @@ function ApplicationAnalysis({
         } else {
             res = await statisticsByAppUid({ ...queryParams, appUid });
         }
-        const message = res?.map((item: LogStatistics) => ({ y: item.messageCount, x: item.createDate }));
-        const userCount = res?.map((item: LogStatistics) => ({ y: item.feedbackLikeCount, x: item.createDate }));
-        const tokens = res?.map((item: LogStatistics) => ({ y: item.tokens, x: item.createDate }));
-        const elapsedAvg = res?.map((item: LogStatistics) => ({ y: item.elapsedAvg?.toFixed(2), x: item.createDate }));
+        const completionSuccessCount = res?.map((item: LogStatistics) => ({ y: item.completionSuccessCount, x: item.createDate }));
+        const completionCostPoints = res?.map((item: LogStatistics) => ({ y: item.completionCostPoints, x: item.createDate }));
+        const imageAvgElapsed = res?.map((item: LogStatistics) => ({ y: item.imageAvgElapsed?.toFixed(2), x: item.createDate }));
+        const completionAvgElapsed = res?.map((item: LogStatistics) => ({ y: item.completionAvgElapsed?.toFixed(2), x: item.createDate }));
+        const imageSuccessCount = res?.map((item: LogStatistics) => ({ y: item.imageSuccessCount, x: item.createDate }));
+        const imageCostPoints = res?.map((item: LogStatistics) => ({ y: item.imageCostPoints, x: item.createDate }));
+        const completionTokens = res?.map((item: LogStatistics) => ({ y: item.completionTokens, x: item.createDate }));
+        const chatTokens = res?.map((item: LogStatistics) => ({ y: item.chatTokens, x: item.createDate }));
         const newList = [];
-        permissions.includes('log:app:analysis:usageCount') && newList.push({ title: t('generateLog.messageTotal'), data: message });
-        permissions.includes('log:app:analysis:usageToken') && newList.push({ title: t('generateLog.tokenTotal'), data: tokens });
-        permissions.includes('log:app:analysis:avgElapsed') &&
-            newList.push({ title: t('generateLog.TimeConsuming') + '(S)', data: elapsedAvg });
-        permissions.includes('log:app:analysis:userLike') && newList.push({ title: t('generateLog.usertotal'), data: userCount });
+        permissions.includes('log:app:analysis:completionCostPoints') &&
+            newList.push({
+                title:
+                    type === 'GENERATE_RECORD'
+                        ? '生成/聊天消耗魔法豆数'
+                        : type === 'APP_ANALYSIS'
+                        ? '生成消耗魔法豆数'
+                        : '聊天消耗魔法豆数',
+                subTitle: '全部消耗的魔法豆数',
+                name: '执行成功次数',
+                data: completionCostPoints,
+                successData: completionSuccessCount,
+                key: true
+            });
+        permissions.includes('log:app:analysis:imageCostPoints') &&
+            type === 'GENERATE_RECORD' &&
+            newList.push({
+                title: '生成图片消耗数',
+                subTitle: '全部消耗的图片数',
+                name: '图片成功次数',
+                data: imageCostPoints,
+                successData: imageSuccessCount,
+                key: true
+            });
+        permissions.includes('log:app:analysis:completionAvgElapsed') &&
+            newList.push({
+                title:
+                    type === 'GENERATE_RECORD' ? '生成/聊天平均耗时(S)' : type === 'APP_ANALYSIS' ? '生成平均耗时(S)' : '聊天平均耗时(S)',
+                data: completionAvgElapsed
+            });
+        permissions.includes('log:app:analysis:imageAvgElapsed') &&
+            type === 'GENERATE_RECORD' &&
+            newList.push({ title: '生成图片平均耗时(S)', data: imageAvgElapsed });
+        permissions.includes('log:app:analysis:completionTokens') &&
+            (type === 'APP_ANALYSIS' || type === 'GENERATE_RECORD') &&
+            newList.push({ title: '生成消耗Tokens', data: completionTokens });
+        permissions.includes('log:app:analysis:chatTokens') &&
+            (type === 'CHAT_ANALYSIS' || type === 'GENERATE_RECORD') &&
+            newList.push({ title: '聊天消耗Tokens', data: chatTokens });
         setGenerate(newList);
     };
     //时间
@@ -194,7 +242,7 @@ function ApplicationAnalysis({
         });
     };
     //封装的echarts
-    const list = (item: Charts): Props => {
+    const list = (item: Charts, key?: boolean): Props => {
         return {
             height: 200,
             type: 'area',
@@ -250,7 +298,12 @@ function ApplicationAnalysis({
                     }
                 }
             },
-            series: [{ name: '', data: item.data }]
+            series: key
+                ? [
+                      { name: item.subTitle, data: item.data },
+                      { name: item.name, data: item.successData as any[] }
+                  ]
+                : [{ name: '', data: item.data }]
         };
     };
     //搜索
@@ -267,27 +320,44 @@ function ApplicationAnalysis({
     };
     const categoryList = marketStore((state) => state.categoryList);
     const getDeList = (row: { appMode: string; uid: string }) => {
-        if (row.appMode === 'BASE_GENERATE_IMAGE') {
-            detailImage({ conversationUid: row.uid }).then((res) => {
-                setResult(res);
-                setImgDetail(res.imageInfo || { images: [{ url: '' }], prompt: '', engine: '', width: 0, height: 0 });
-                setPicOpen(true);
+        if (row.appMode === 'IMAGE') {
+            detailImage({ appConversationUid: row.uid }).then((res) => {
+                if (res) {
+                    if (
+                        res.fromScene === 'IMAGE_REMOVE_BACKGROUND' ||
+                        res.fromScene === 'IMAGE_REMOVE_TEXT' ||
+                        res.fromScene === 'IMAGE_UPSCALING' ||
+                        res.fromScene === 'IMAGE_VARIANTS' ||
+                        res.fromScene === 'IMAGE_SKETCH'
+                    ) {
+                        setDetailData(res.imageInfo);
+                        setDetailOpen(true);
+                    } else {
+                        setResult(res);
+                        setImgDetail(res.imageInfo || { images: [{ url: '' }], prompt: '', engine: '', width: 0, height: 0 });
+                        setPicOpen(true);
+                    }
+                }
             });
         }
     };
-    const [detail, setDetail] = useState<Detail[] | null>(null);
-    //图片弹框
-    const [picOpen, setPicOpen] = useState(false);
     const [ImgDetail, setImgDetail] = useState({
         images: [],
         prompt: '',
         engine: '',
         width: 0,
-        height: 0
+        height: 0,
+        stylePreset: ''
     });
     const [currentIndex, setCurrentIndex] = useState(0);
+    //图片弹框
+    const [picOpen, setPicOpen] = useState(false);
     //执行弹窗
     const [exeOpen, setExeOpen] = useState(false);
+    const [detail, setDetail] = useState<Detail[] | null>(null);
+    //智能抠图弹窗
+    const [detailOpen, setDetailOpen] = useState(false);
+    const [detailData, setDetailData] = useState<any>({});
     //接口请求出来的全部内容
     const [result, setResult] = useState<any>({});
     const [exeDetail, setExeDetail] = useState<any>({});
@@ -372,7 +442,7 @@ function ApplicationAnalysis({
                             <Typography variant="h4" gutterBottom>
                                 {item.title}
                             </Typography>
-                            <Chart {...list(item)} />
+                            {item.key ? <Chart {...list(item, true)} /> : <Chart {...list(item)} />}
                         </SubCard>
                     </Grid>
                 ))}
@@ -405,7 +475,19 @@ function ApplicationAnalysis({
                             <TableCell sx={{ minWidth: '150px' }} align="center">
                                 更新时间
                             </TableCell>
-                            <TableCell sx={{ minWidth: '50px' }} align="center"></TableCell>
+                            {permissions.includes('log:app:page:adminColumns') && (
+                                <TableCell sx={{ minWidth: '100px' }} align="center">
+                                    消耗总Token
+                                </TableCell>
+                            )}
+                            {permissions.includes('log:app:page:adminColumns') && (
+                                <TableCell sx={{ minWidth: '100px' }} align="center">
+                                    用户等级
+                                </TableCell>
+                            )}
+                            <TableCell sx={{ minWidth: '50px' }} align="center">
+                                操作
+                            </TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -414,51 +496,107 @@ function ApplicationAnalysis({
                                 <TableCell align="center">{row.appName}</TableCell>
                                 <TableCell align="center">{t('generate.' + row.appMode)}</TableCell>
                                 <TableCell align="center">{appScene.find((item) => item.value === row.fromScene)?.label}</TableCell>
-                                <TableCell align="center">{row.totalAnswerTokens + row.totalMessageTokens}</TableCell>
+                                <TableCell align="center">{row.costPoints}</TableCell>
                                 <TableCell align="center">{row.totalElapsed}</TableCell>
                                 <TableCell align="center">{row.appExecutor}</TableCell>
                                 <TableCell align="center">
                                     {row.status !== 'SUCCESS' ? (
                                         row.errorCode === '2008002007' ? (
-                                            <Link onClick={() => navigate('/subscribe')} color="secondary" className="cursor-pointer">
-                                                令牌不足，去升级
+                                            <Link
+                                                onClick={() =>
+                                                    window.open(window.location.protocol + '//' + window.location.host + '/subscribe')
+                                                }
+                                                color="secondary"
+                                                className="cursor-pointer"
+                                            >
+                                                魔法豆不足，去升级
                                             </Link>
                                         ) : (
-                                            <Tooltip placement="top" title={<Typography>{`系统异常（${row.errorCode}）`}</Typography>}>
-                                                <Tag className="cursor-pointer" color={row.status === 'SUCCESS' ? 'success' : 'error'}>
-                                                    失败
-                                                </Tag>
-                                            </Tooltip>
+                                            <>
+                                                <Tooltip placement="top" title={<Typography>{`系统异常（${row.errorCode}）`}</Typography>}>
+                                                    <Tag className="cursor-pointer" color="error">
+                                                        失败
+                                                    </Tag>
+                                                </Tooltip>
+                                                <span className="hidden">{row.errorCode}</span>
+                                            </>
                                         )
                                     ) : (
-                                        <Tag color="success">成功</Tag>
+                                        <>
+                                            <Tag color="success">成功</Tag>
+                                            <span className="hidden"></span>
+                                        </>
                                     )}
                                 </TableCell>
                                 <TableCell align="center">{formatDate(row.updateTime)}</TableCell>
+                                {permissions.includes('log:app:page:adminColumns') && <TableCell align="center">{row.tokens}</TableCell>}
+                                {permissions.includes('log:app:page:adminColumns') && (
+                                    <TableCell align="center">
+                                        {row.userLevels?.map((item) => (
+                                            <p className="mt-[5px]">
+                                                <Tag
+                                                    color={
+                                                        item === 'MOFAAI_FREE'
+                                                            ? 'processing'
+                                                            : item === 'MOFAAI_BASIC'
+                                                            ? 'processing'
+                                                            : item === 'MOFAAI_PLUS'
+                                                            ? '#673ab7'
+                                                            : item === 'MOFAAI_PRO'
+                                                            ? 'warning'
+                                                            : item === 'MOFAAI_ADMIN'
+                                                            ? 'error'
+                                                            : item === 'MOFAAI_DEV'
+                                                            ? 'error'
+                                                            : 'processing'
+                                                    }
+                                                >
+                                                    {item === 'MOFAAI_FREE'
+                                                        ? '免费版'
+                                                        : item === 'MOFAAI_BASIC'
+                                                        ? '基础版'
+                                                        : item === 'MOFAAI_PLUS'
+                                                        ? '高级版'
+                                                        : item === 'MOFAAI_PRO'
+                                                        ? '团队版'
+                                                        : item === 'MOFAAI_ADMIN'
+                                                        ? '管理员'
+                                                        : item === 'MOFAAI_DEV'
+                                                        ? '运营'
+                                                        : item}
+                                                </Tag>
+                                            </p>
+                                        ))}
+                                    </TableCell>
+                                )}
                                 <TableCell align="center">
                                     <Button
                                         color="secondary"
                                         size="small"
                                         onClick={() => {
-                                            if (row.appMode === 'BASE_GENERATE_IMAGE') {
+                                            if (row.appMode === 'IMAGE') {
                                                 getDeList(row);
                                             } else if (row.appMode === 'COMPLETION') {
-                                                detailApp({ conversationUid: row.uid }).then((res) => {
-                                                    setExeDetail(res.appInfo);
-                                                    setResult(res);
-                                                    setConversationUid(res.conversationUid);
-                                                    setExeOpen(true);
+                                                detailApp({ appConversationUid: row.uid }).then((res) => {
+                                                    if (res) {
+                                                        setExeDetail(res.appInfo);
+                                                        setResult(res);
+                                                        setConversationUid(res.conversationUid);
+                                                        setExeOpen(true);
+                                                    }
                                                 });
                                             } else if (row.appMode === 'CHAT') {
-                                                setChatVisible(true);
                                                 setConversationUid(row.uid);
                                                 getChatRecord({
-                                                    conversationUid: row.uid,
+                                                    appConversationUid: row.uid,
                                                     pageNo: 1,
                                                     pageSize: 100,
                                                     fromScene: row.fromScene
                                                 }).then((res) => {
-                                                    setDetail(res.list);
+                                                    if (res) {
+                                                        setChatVisible(true);
+                                                        setDetail(res.list);
+                                                    }
                                                 });
                                             }
                                         }}
@@ -490,6 +628,7 @@ function ApplicationAnalysis({
                     engine={ImgDetail.engine}
                     width={ImgDetail.width}
                     height={ImgDetail.height}
+                    stylePreset={ImgDetail?.stylePreset}
                 />
             )}
             {chatVisible && (
@@ -551,11 +690,17 @@ function ApplicationAnalysis({
                             >
                                 <CardContent>
                                     <Box>
-                                        {result.status === 'ERROR' && <DetailErr result={result} />}
                                         <Box display="flex" justifyContent="space-between" alignItems="center">
                                             <Box display="flex" justifyContent="space-between" alignItems="center">
-                                                {result.status !== 'ERROR' && <AccessAlarm sx={{ fontSize: '70px' }} />}
-                                                <Box>
+                                                {exeDetail?.icon && (
+                                                    <Image
+                                                        preview={false}
+                                                        height={60}
+                                                        className="rounded-lg overflow-hidden"
+                                                        src={require('../../../assets/images/category/' + exeDetail?.icon + '.svg')}
+                                                    />
+                                                )}
+                                                <Box ml={1}>
                                                     <Box>
                                                         <Typography variant="h1" sx={{ fontSize: '2rem' }}>
                                                             {exeDetail?.name}
@@ -580,7 +725,7 @@ function ApplicationAnalysis({
                                                 </Box>
                                             </Box>
                                         </Box>
-                                        {result.status !== 'ERROR' && <Divider sx={{ mb: 1 }} />}
+                                        {result.status !== 'ERROR' && <Divider sx={{ my: 1 }} />}
                                         <Typography variant="h5" sx={{ fontSize: '1.1rem', mb: 3 }}>
                                             {exeDetail?.description}
                                         </Typography>
@@ -604,6 +749,7 @@ function ApplicationAnalysis({
                     </div>
                 </Drawer>
             )}
+            {detailOpen && <ImageDetail detailOpen={detailOpen} detailData={detailData} handleClose={() => setDetailOpen(false)} />}
         </Box>
     );
 }

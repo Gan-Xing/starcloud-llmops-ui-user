@@ -13,10 +13,11 @@ import {
     ListItem,
     ListItemIcon,
     ListItemText,
+    Tooltip,
     Typography
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { Popover, Radio, Tag, Button as AntButton } from 'antd';
+import { Popover, Radio, Tag, Button as AntButton, Descriptions } from 'antd';
 
 // project imports
 import { gridSpacing } from 'store/constant';
@@ -53,6 +54,8 @@ import people6 from 'assets/images/pay/people6.png';
 import people7 from 'assets/images/pay/people7.png';
 import people8 from 'assets/images/pay/people8.png';
 import { useWindowSize } from 'hooks/useWindowSize';
+import { PlayArrow } from '@mui/icons-material';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 const recommendList = [
     {
@@ -145,24 +148,41 @@ const recommendList = [
     }
 ];
 
-const plans = [
+const plansDefault = (value: number) => [
     {
         active: false,
         icon: <TwoWheelerTwoToneIcon fontSize="large" color="inherit" />,
         title: '免费版',
-        description: '每天签到获取字数/图片使用数',
+        description: '每天签到获取魔法豆/图片使用数',
         monthPrice: '免费',
         yearPrice: '免费',
+        des: '适用于新用户体验，打卡获得魔法豆',
         permission: [0, 1, 2, 4, 5, 6, 7, 8, 9],
         btnText: '免费使用'
+    },
+    {
+        active: false,
+        icon: <TwoWheelerTwoToneIcon fontSize="large" color="inherit" />,
+        title: '基础版',
+        description: value === 1 ? '3000魔法豆，300点作图' : '36000魔法豆，3600点作图',
+        monthPrice: 59,
+        yearPrice: 599,
+        preMonthPrice: 49.91,
+        des: '适用于普通用户',
+        permission: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+        btnText: '立即购买',
+        monthCode: 'basic_month',
+        yearCode: 'basic_year'
     },
     {
         active: true,
         icon: <TwoWheelerTwoToneIcon fontSize="large" color="inherit" />,
         title: '高级版',
-        description: '200000字数创作，400张图片',
-        monthPrice: 99,
-        yearPrice: 999,
+        description: value === 1 ? '10000魔法豆，1000点作图' : '120000魔法豆，12000点作图',
+        monthPrice: 199,
+        yearPrice: 1999,
+        preMonthPrice: 166.58,
+        des: '适用于专业卖家',
         permission: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
         btnText: '立即购买',
         monthCode: 'plus_month',
@@ -172,9 +192,11 @@ const plans = [
         active: false,
         icon: <AirportShuttleTwoToneIcon fontSize="large" />,
         title: '团队版',
-        description: '6个账号，无限字数创作，1000张图片',
+        description: value === 1 ? '6个账号，25000魔法豆，2000点作图' : '6个账号，300000魔法豆，24000点作图',
         monthPrice: 499,
         yearPrice: 4999,
+        preMonthPrice: 416.58,
+        des: '适用于公司团队',
         permission: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
         btnText: '立即购买',
         monthCode: 'pro_month',
@@ -193,38 +215,129 @@ const plans = [
     }
 ];
 
-const planList = [
+const planListDefault = (value: number) => [
     [
-        '签到每天可免费', // 0
-        '签到可免费获取图片2张', // 1
+        '签到可免费获得2魔法豆', // 0
+        '签到可免费获取图片1张', // 1
         'GPT-3.5/开源模型', // 2
         'GPT-4', // 3
-        '2个自定义应用', // 4
-        '2个自定义机器人', // 4
+        '1个自定义应用', // 4
+        '1个自定义机器人', // 4
         '1个微信群机器人', // 4
         '多渠道发布机器人客服', // 4
         '上传信息库/文档问答', // 4
-        '每个机器人2个文档上传', // 4
+        '每个机器人1个文档上传', // 4
         'Google/Amazon联网查询', // 5
         '机器人插件扩展' // 6
     ],
     [
-        '20万字数生成', // 0
-        '生成图片400张', // 1
+        <div className="flex items-center">
+            <span>{value === 1 ? '3000魔法豆' : '36000魔法豆'}</span>
+            <Tooltip title={'执行应用或聊天消耗一点'}>
+                <HelpOutlineIcon className="text-base ml-1 cursor-pointer tips" />
+            </Tooltip>
+        </div>, // 0
+        `生成图片${value === 1 ? 300 : 3600}张`, // 1
         'GPT-3.5/开源模型', // 2
-        'GPT-4', // 3
-        '20个自定义应用', // 3
-        '20个自定义机器人', // 3
-        '10个微信群机器人', // 3
-        '多渠道发布机器人客服', // 3
-        '上传信息库/文档问答', // 4
+        <div className="flex items-center">
+            <span>GPT-4</span>
+            <Tooltip title={'消耗30点魔法豆'}>
+                <HelpOutlineIcon className="text-base ml-1 cursor-pointer tips" />
+            </Tooltip>
+        </div>,
+        <div className="flex items-center">
+            <span>5个自定义应用</span>
+            <Tooltip title={'可自定义提示词应用'}>
+                <HelpOutlineIcon className="text-base ml-1 cursor-pointer tips" />
+            </Tooltip>
+        </div>,
+        <div className="flex items-center">
+            <span>5个自定义机器人</span>
+            <Tooltip title={'可自定义自己的问答机器人'}>
+                <HelpOutlineIcon className="text-base ml-1 cursor-pointer tips" />
+            </Tooltip>
+        </div>,
+        <div className="flex items-center">
+            <span>1个微信群机器人</span>
+            <Tooltip title={'机器人可发布到微信群使用'}>
+                <HelpOutlineIcon className="text-base ml-1 cursor-pointer tips" />
+            </Tooltip>
+        </div>,
+        <div className="flex items-center">
+            <span>多渠道发布机器人客服</span>
+            <Tooltip title={'可把配置好的机器人部署到 公共号,微信群,个人网站等地方,即可直接使用'}>
+                <HelpOutlineIcon className="text-base ml-1 cursor-pointer tips" />
+            </Tooltip>
+        </div>,
+        <div className="flex items-center">
+            <span>上传信息库/文档问答</span>
+            <Tooltip title={'可上传私有文档，机器人可自动参考文档的内容，并进行最合理的回答'}>
+                <HelpOutlineIcon className="text-base ml-1 cursor-pointer tips" />
+            </Tooltip>
+        </div>,
+
+        '每个机器人5个文档上传', // 4
+        'Google/Amazon联网查询', // 5
+        '1个机器人插件扩展' // 6
+    ],
+    [
+        <div className="flex items-center">
+            <span>{value === 1 ? '10000魔法豆' : '120000魔法豆'}</span>
+            <Tooltip title={'执行应用或聊天消耗一点'}>
+                <HelpOutlineIcon className="text-base ml-1 cursor-pointer tips" />
+            </Tooltip>
+        </div>, // 0
+        `生成图片${value === 1 ? 1000 : 12000}张`, // 1
+        'GPT-3.5/开源模型', // 2
+        <div className="flex items-center">
+            <span>GPT-4</span>
+            <Tooltip title={'消耗30点魔法豆'}>
+                <HelpOutlineIcon className="text-base ml-1 cursor-pointer tips" />
+            </Tooltip>
+        </div>,
+        <div className="flex items-center">
+            <span>20个自定义应用</span>
+            <Tooltip title={'可自定义提示词应用'}>
+                <HelpOutlineIcon className="text-base ml-1 cursor-pointer tips" />
+            </Tooltip>
+        </div>,
+        <div className="flex items-center">
+            <span>20个自定义机器人</span>
+            <Tooltip title={'可自定义自己的问答机器人'}>
+                <HelpOutlineIcon className="text-base ml-1 cursor-pointer tips" />
+            </Tooltip>
+        </div>,
+        <div className="flex items-center">
+            <span>10个微信群机器人</span>
+            <Tooltip title={'机器人可发布到微信群使用'}>
+                <HelpOutlineIcon className="text-base ml-1 cursor-pointer tips" />
+            </Tooltip>
+        </div>,
+        <div className="flex items-center">
+            <span>多渠道发布机器人客服</span>
+            <Tooltip title={'可把配置好的机器人部署到 公共号,微信群,个人网站等地方,即可直接使用'}>
+                <HelpOutlineIcon className="text-base ml-1 cursor-pointer tips" />
+            </Tooltip>
+        </div>,
+        <div className="flex items-center">
+            <span>上传信息库/文档问答</span>
+            <Tooltip title={'可上传私有文档，机器人可自动参考文档的内容，并进行最合理的回答'}>
+                <HelpOutlineIcon className="text-base ml-1 cursor-pointer tips" />
+            </Tooltip>
+        </div>,
         '每个机器人20个文档上传', // 4
         'Google/Amazon联网查询', // 5
         '3个机器人插件扩展' // 6
     ],
     [
-        '无限字数生成', // 0
-        '生成图片1000张', // 1
+        <div className="flex items-center">
+            <span>25000魔法豆</span>
+            <span>{value === 1 ? '25000魔法豆' : '300000魔法豆'}</span>
+            <Tooltip title={'执行应用或聊天消耗一点'}>
+                <HelpOutlineIcon className="text-base ml-1 cursor-pointer tips" />
+            </Tooltip>
+        </div>, // 0
+        `生成图片${value === 1 ? 2000 : 24000}张`, // 1
         'GPT-3.5/开源模型', // 2
         'GPT-4', // 3
         '无限自定义应用', // 4
@@ -251,6 +364,9 @@ const planList = [
 let interval: any;
 
 const Price1 = () => {
+    const [planList, setPlanList] = useState(planListDefault(1));
+    const [plans, setPlans] = useState(plansDefault(1));
+
     const navigate = useNavigate();
     const { isLoggedIn } = useAuth();
     const theme = useTheme();
@@ -258,6 +374,7 @@ const Price1 = () => {
     const [openDialog, setOpenDialog] = useState(false);
     const [openPayDialog, setOpenPayDialog] = useState(false);
     const [swiperRef, setSwiperRef] = useState<any>(null);
+    const [payPrice, setPayPrice] = useState(0);
     const { width } = useWindowSize();
 
     const priceListDisable = {
@@ -284,6 +401,18 @@ const Price1 = () => {
     const [isTimeout, setIsTimeout] = useState(false);
 
     const [orderId, setOrderId] = useState('');
+
+    useEffect(() => {
+        if (value === '1') {
+            setPlanList(planListDefault(1));
+            setPlans(plansDefault(1));
+        }
+
+        if (value === '2') {
+            setPlanList(planListDefault(2));
+            setPlans(plansDefault(2));
+        }
+    }, [value]);
 
     const handleOpen = () => {
         setOpen(true);
@@ -383,7 +512,8 @@ const Price1 = () => {
         }
     };
 
-    const handleClick = (index: number, code?: string) => {
+    const handleClick = (index: number, code?: string, price?: any) => {
+        setPayPrice(price);
         switch (index) {
             case 0:
                 return navigate('/exchange');
@@ -392,6 +522,8 @@ const Price1 = () => {
             case 2:
                 return handleCreateOrder(code);
             case 3:
+                return handleCreateOrder(code);
+            case 4:
                 return;
         }
     };
@@ -412,7 +544,7 @@ const Price1 = () => {
                 <VipBar />
             </HeaderWrapper>
             <div className="flex w-full bg-[#f4f6f8] mt-[100px] pt-10 pb-10 justify-center">
-                <div className="w-4/5">
+                <div className="w-[94%]">
                     <div className="flex justify-center mb-10 xs:text-2xl md:text-5xl">立即订阅，创作无限可能！</div>
                     <div className="flex justify-center mb-10">
                         <Radio.Group onChange={onChange} buttonStyle="solid" size="large" value={value}>
@@ -420,16 +552,16 @@ const Price1 = () => {
                                 月付
                             </Radio.Button>
                             <Radio.Button value="2" style={{ width: '150px', textAlign: 'center' }}>
-                                年付 <Tag color="#f50">8折</Tag>
+                                年付 <Tag color="#f50">8折优惠</Tag>
                             </Radio.Button>
                         </Radio.Group>
                     </div>
-                    <Grid container spacing={gridSpacing}>
+                    <Grid container spacing={gridSpacing} columns={20}>
                         {plans.map((plan, index) => {
                             const darkBorder =
                                 theme.palette.mode === 'dark' ? theme.palette.background.default : theme.palette.primary[200] + 75;
                             return (
-                                <Grid item xs={12} sm={6} md={3} key={index}>
+                                <Grid item xs={20} sm={10} md={4} key={index}>
                                     <MainCard
                                         boxShadow
                                         sx={{
@@ -439,29 +571,6 @@ const Price1 = () => {
                                         }}
                                     >
                                         <Grid container textAlign="center" spacing={gridSpacing}>
-                                            {/* <Grid item xs={12}>
-                                                <Box
-                                                    sx={{
-                                                        display: 'inline-flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        borderRadius: '50%',
-                                                        width: 80,
-                                                        height: 80,
-                                                        background:
-                                                            theme.palette.mode === 'dark'
-                                                                ? theme.palette.dark[800]
-                                                                : theme.palette.primary.light,
-                                                        color: theme.palette.primary.main,
-                                                        '& > svg': {
-                                                            width: 35,
-                                                            height: 35
-                                                        }
-                                                    }}
-                                                >
-                                                    {plan.icon}
-                                                </Box>
-                                            </Grid> */}
                                             <Grid item xs={12}>
                                                 <Typography
                                                     variant="h6"
@@ -488,26 +597,38 @@ const Price1 = () => {
                                             <Grid item xs={12}>
                                                 <Typography variant="body2">{plan.description}</Typography>
                                             </Grid>
+
                                             <Grid item xs={12}>
+                                                {index === 1 || index === 2 || index === 3 ? (
+                                                    <div className="text-sm text-center text-[#d7d7d7] line-through">
+                                                        ￥{(plan?.monthPrice as number) * 2}/月
+                                                    </div>
+                                                ) : (
+                                                    <div className="h-[24px]"></div>
+                                                )}
                                                 <Typography
                                                     component="div"
                                                     variant="body2"
                                                     sx={{
                                                         fontSize: '2.1875rem',
                                                         fontWeight: 700,
+                                                        lineHeight: '1.2em',
                                                         '& > span': {
                                                             fontSize: '1.25rem',
                                                             fontWeight: 500
                                                         }
                                                     }}
                                                 >
-                                                    {(index === 1 || index === 2) && <span>￥</span>}
-                                                    {value === '1' ? plan.monthPrice : plan.yearPrice}
-                                                    {(index === 1 || index === 2) && <span>/{value === '1' ? '月' : '年'}</span>}
+                                                    {(index === 1 || index === 2 || index === 3) && <span>￥</span>}
+                                                    {value === '1' ? plan.monthPrice : plan.preMonthPrice ?? plan.monthPrice}
+                                                    {(index === 1 || index === 2 || index === 3) && (
+                                                        <span className="text-[#aaa]">/月</span>
+                                                    )}
                                                 </Typography>
+                                                <div className="text-[#aaa] text-sm text-center">{plan?.des}</div>
                                             </Grid>
                                             <Grid item xs={12}>
-                                                {index === 3 ? (
+                                                {index === 4 ? (
                                                     <Popover
                                                         content={
                                                             <div className="flex justify-start items-center flex-col">
@@ -530,7 +651,13 @@ const Price1 = () => {
                                                     <Button
                                                         className={'w-4/5'}
                                                         variant={plan.active ? 'contained' : 'outlined'}
-                                                        onClick={() => handleClick(index, value === '1' ? plan.monthCode : plan.yearCode)}
+                                                        onClick={() =>
+                                                            handleClick(
+                                                                index,
+                                                                value === '1' ? plan.monthCode : plan.yearCode,
+                                                                value === '1' ? plan.monthPrice : plan.yearPrice
+                                                            )
+                                                        }
                                                         color="secondary"
                                                     >
                                                         {plan.btnText}
@@ -558,7 +685,12 @@ const Price1 = () => {
                                                                 <ListItemIcon>
                                                                     <CheckTwoToneIcon sx={{ fontSize: '1.3rem' }} />
                                                                 </ListItemIcon>
-                                                                <ListItemText primary={list} />
+                                                                <ListItemText
+                                                                    sx={{
+                                                                        '& .tips': { fill: '#000' }
+                                                                    }}
+                                                                    primary={list}
+                                                                />
                                                             </ListItem>
                                                             <Divider />
                                                         </React.Fragment>
@@ -626,7 +758,7 @@ const Price1 = () => {
                                         </div>
                                     </SwiperSlide>
                                 ))}
-                            </Swiper>{' '}
+                            </Swiper>
                         </div>
                     </div>
                 </div>
@@ -634,7 +766,14 @@ const Price1 = () => {
             <SectionWrapper sx={{ bgcolor: theme.palette.mode === 'dark' ? 'background.default' : 'dark.900', pb: 0 }}>
                 <FooterSection />
             </SectionWrapper>
-            <PayModal open={open} handleClose={() => handleClose()} url={payUrl} isTimeout={isTimeout} onRefresh={onRefresh} />
+            <PayModal
+                open={open}
+                handleClose={() => handleClose()}
+                url={payUrl}
+                isTimeout={isTimeout}
+                onRefresh={onRefresh}
+                payPrice={payPrice}
+            />
             {/* <Record open={openRecord} handleClose={handleCloseRecord} /> */}
             <Dialog
                 open={openDialog}

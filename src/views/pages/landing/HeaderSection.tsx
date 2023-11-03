@@ -195,14 +195,14 @@ const HeaderSection = () => {
                                         <AnimateButton>
                                             <Button
                                                 component={RouterLink}
-                                                to="/appMarket/list"
-                                                target="_blank"
+                                                to="/appMarket"
+                                                // target="_blank"
                                                 size="large"
                                                 variant="contained"
                                                 color="secondary"
                                                 startIcon={<StarIcon />}
                                             >
-                                                开始创作
+                                                开始免费创作
                                             </Button>
                                         </AnimateButton>
                                     </Grid>

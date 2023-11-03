@@ -3,6 +3,14 @@ import request from 'utils/axios';
 export const marketPage = (params: PageParam) => {
     return request.get({ url: '/llm/app/market/page', params });
 };
+//模板市场新列表
+export const listGroupByCategory = (params: any) => {
+    return request.get({ url: '/llm/app/market/listGroupByCategory', params });
+};
+//模板市场类别树
+export const categoryTree = () => {
+    return request.get({ url: '/llm/app/categoryTree' });
+};
 //模板市场详情
 export const marketDeatail = (data: { uid: string }) => {
     return request.get({ url: `/llm/app/market/get/${data.uid}` });
@@ -39,6 +47,10 @@ export const appPage = (params: { pageNo: number; pageSize: number; mode?: strin
 //删除应用
 export const del = (uid: string) => {
     return request.delete({ url: `/llm/app/delete/${uid}` });
+};
+//应用类型
+export const metadata = () => {
+    return request.get({ url: `/llm/app/metadata` });
 };
 
 //执行记录echart
@@ -129,6 +141,10 @@ export const changeStatus = (data: any) => {
 // 创建站点
 export const channelCreate = (data: any) => {
     return request.post({ url: `/llm/app/publish/channel/create`, data });
+};
+// 微信公众号
+export const bindCreateUrl = (data: any) => {
+    return request.post({ url: `/llm/wechat/bind/createUrl`, data });
 };
 // 修改站点
 export const channelUpload = (data: any) => {

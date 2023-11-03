@@ -26,6 +26,7 @@ import { getUserInfo } from 'api/login';
 import Link from 'assets/images/share/fenxianglianjie.svg';
 import register from 'assets/images/share/zhuce.svg';
 import Reward from 'assets/images/share/yaoqingjiangli.svg';
+import infoStore from 'store/entitlementAction';
 interface TabPanelProps {
     children?: React.ReactNode;
     index: number;
@@ -62,7 +63,7 @@ const SpaceEquity = () => {
             total: 20
         },
         {
-            name: '魔法值',
+            name: '魔法豆',
             icon: 'mofa',
             desc: '已使用量/总量',
             trained: 2,
@@ -83,6 +84,7 @@ const SpaceEquity = () => {
             total: 5
         }
     ];
+    const { use } = infoStore();
     const [tableList, setTableList] = useState<any[]>([]);
     const [total, setTotal] = useState<number>(1);
     const [pageQuery, setPageQuery] = useState({
@@ -97,11 +99,11 @@ const SpaceEquity = () => {
     };
     const [inviteUrl, setInviteUrl] = useState('');
     const getList = async () => {
-        const result = await getUserInfo();
-        setInviteUrl(result.inviteUrl);
+        // const result = await getUserInfo();
+        // setInviteUrl(result.inviteUrl);
     };
     useEffect(() => {
-        getList();
+        // getList();
     }, [pageQuery.pageNo]);
     return (
         <Card sx={{ p: 2 }}>
@@ -155,11 +157,11 @@ const SpaceEquity = () => {
             </CustomTabPanel>
             <CustomTabPanel value={value} index={1}>
                 <Box textAlign="center">
-                    <Typography variant="h2">邀请你的朋友并赚取魔法值</Typography>
+                    <Typography variant="h2">邀请你的朋友并赚取魔法豆</Typography>
                     <Typography variant="h4" fontWeight={400} my={2}>
-                        为您和您的朋友赚取对应的魔法值
+                        为您和您的朋友赚取对应的魔法豆
                     </Typography>
-                    <Typography variant="h4">您推荐的越多，魔法值越高</Typography>
+                    <Typography variant="h4">您推荐的越多，魔法豆越高</Typography>
                 </Box>
                 <SubCard
                     sx={{
@@ -181,7 +183,7 @@ const SpaceEquity = () => {
                                     </Typography>
                                 }
                             />
-                            <ListItemText primary="邀请成功就送您和好友每人令牌额度, 奖励无上限" />
+                            <ListItemText primary="邀请成功就送您和好友每人魔法豆额度, 奖励无上限" />
                             <IconButton size="small" color="secondary">
                                 <BorderColorOutlinedIcon fontSize="small" />
                             </IconButton>
@@ -195,7 +197,9 @@ const SpaceEquity = () => {
                                     </Typography>
                                 }
                             />
-                            <ListItemText primary={inviteUrl} />
+                            <ListItemText
+                                primary={window.location.protocol + '//' + window.location.host + '/login?q=' + use?.inviteCode}
+                            />
                             <Button size="small" color="secondary" variant="outlined">
                                 复制文案及链接
                             </Button>

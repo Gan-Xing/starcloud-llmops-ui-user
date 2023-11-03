@@ -25,6 +25,7 @@ import workWechatPay from 'assets/images/landing/work_wechat_pay.png';
 import { IconMenu2 } from '@tabler/icons';
 import { t } from 'hooks/web/useI18n';
 import { useNavigate } from 'react-router-dom';
+import { DownLoadBtn, PayBtn } from './DownloadBtn';
 
 // ==============================|| MAIN NAVBAR / HEADER ||============================== //
 
@@ -122,7 +123,13 @@ const Header = () => {
                 }
                 arrow={false}
             >
-                <Box display="flex" alignItems="center" sx={{ cursor: 'pointer', ml: '47px' }} onClick={handleClick}>
+                <Box
+                    display="flex"
+                    alignItems="center"
+                    sx={{ cursor: 'pointer' }}
+                    onClick={handleClick}
+                    className="sm:ml-[47px] xs:ml-[20px]"
+                >
                     <QrCode2Icon />
                     <Typography sx={{ whiteSpace: 'nowrap' }} ml={1}>
                         跨境卖家AI工具群
@@ -130,6 +137,7 @@ const Header = () => {
                     <KeyboardArrowDownIcon />
                 </Box>
             </Popover>
+            <PayBtn />
             {/* header search */}
             <SearchSection />
             <Box sx={{ flexGrow: 1 }} />
@@ -139,6 +147,8 @@ const Header = () => {
             {/* <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
                 <MegaMenuSection />
             </Box> */}
+            {/* <DownLoadBtn /> */}
+
             <Button
                 className="mr-10"
                 color={'secondary'}
@@ -151,7 +161,7 @@ const Header = () => {
             >
                 {t('EntitlementCard.ppFreegrades')}
             </Button>
-            <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+            {/* <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
                 <FormControlLabel
                     value={navType === 'light'}
                     onChange={(e: any) => onChangeMenuType(e.target?.checked ? 'light' : 'dark')}
@@ -162,7 +172,7 @@ const Header = () => {
                         '& .MuiFormControlLabel-label': { color: theme.palette.grey[900] }
                     }}
                 />
-            </Box>
+            </Box> */}
 
             {/* live customization & localization */}
             <Box sx={{ display: { xs: 'none', sm: 'block' } }}>

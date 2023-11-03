@@ -140,6 +140,35 @@ const FooterSection = () => {
                     </Grid>
                 </Grid>
             </Container>
+            <div className="flex justify-center">
+                <div className="flex pb-3 max-w-[1200px] px-[24px] w-full">
+                    <span className="mr-2 text-white">友情链接:</span>
+                    <a target="_blank" className="text-[#2196f3]" href="https://www.amz123.com">
+                        AMZ123亚马逊导航
+                    </a>
+                    <a target="_blank" className="text-[#2196f3] ml-2" href="https://www.aiwht.com">
+                        AI万花筒
+                    </a>
+                    <a target="_blank" className="text-[#2196f3] ml-2" href="https://www.aitop100.cn">
+                        AI Top100
+                    </a>
+                    <a target="_blank" className="text-[#2196f3] ml-2" href="https://www.deepdhai.com/">
+                        深度导航
+                    </a>
+                    <a target="_blank" className="text-[#2196f3] ml-2" href="https://tools.ikjzd.com">
+                        跨境导航
+                    </a>
+                    <a target="_blank" className="text-[#2196f3] ml-2" href="https://hao.logosc.cn">
+                        神器集
+                    </a>
+                    <a target="_blank" className="text-[#2196f3] ml-2" href="https://www.234.cn">
+                        234跨境导航
+                    </a>
+                    <a target="_blank" className="text-[#2196f3] ml-2" href="https://www.h1z1tmc.com/">
+                        AI导航猫
+                    </a>
+                </div>
+            </div>
             <Box sx={{ bgcolor: 'dark.dark', py: { xs: 3, sm: 1.5 } }}>
                 <Container>
                     <Stack

@@ -93,7 +93,7 @@ interface BenefitItem {
 }
 function LinearProgressWithLabel({ info }: LinearProgressWithLabelProps) {
     const theme = useTheme();
-    const list = info?.benefits?.filter((v: any) => ['TOKEN', 'IMAGE'].includes(v.type));
+    const list = info?.benefits?.filter((v: any) => ['COMPUTATIONAL_POWER', 'IMAGE'].includes(v.type));
     return (
         <Box>
             {list?.map((item: BenefitItem) => (
@@ -133,11 +133,11 @@ function LinearProgressWithLabel({ info }: LinearProgressWithLabelProps) {
 
 const Cards = ({ flag = false }) => {
     const theme = useTheme();
-    const { invitationCode } = infoStore();
+    const { use } = infoStore();
     const navigate = useNavigate();
     const { userInfo, setUserInfo }: any = userInfoStore();
     const copyCode = () => {
-        copy(window.location.protocol + '//' + window.location.host + '/login?q=' + invitationCode);
+        copy(window.location.protocol + '//' + window.location.host + '/login?q=' + use?.inviteCode);
         dispatch(
             openSnackbar({
                 open: true,
@@ -182,8 +182,10 @@ const Cards = ({ flag = false }) => {
                                     color={
                                         userInfo?.userLevel === 'free'
                                             ? 'primary'
-                                            : userInfo?.userLevel === 'plus'
+                                            : userInfo?.userLevel === 'basic'
                                             ? 'secondary'
+                                            : userInfo?.userLevel === 'plus'
+                                            ? 'warning'
                                             : userInfo?.userLevel === 'pro'
                                             ? 'warning'
                                             : 'primary'
@@ -237,14 +239,13 @@ const Cards = ({ flag = false }) => {
                                     '&:hover': { color: '#673ab7' }
                                 }}
                             >
-                                {`${window.location.protocol}//${window.location.host}
-                            /login?q=${invitationCode}`}
+                                {window.location.protocol + '//' + window.location.host + '/login?q=' + use?.inviteCode}
                             </Typography>
                         </Tooltip>
                         <Box marginTop={3} textAlign="center">
                             <QRCode
                                 size={100}
-                                value={window.location.protocol + '//' + window.location.host + '/login?q=' + invitationCode}
+                                value={window.location.protocol + '//' + window.location.host + '/login?q=' + use?.inviteCode}
                             />
                             <Typography variant="h5">{t('market.invitation')}</Typography>
                         </Box>

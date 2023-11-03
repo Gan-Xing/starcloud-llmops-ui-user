@@ -6,11 +6,13 @@ type MarketStore = {
     newtemplateList: any[];
     sorllList: any[];
     categoryList: any[];
+    categoryTrees: any[];
     setTotal: (data: number) => void;
     setTemplate: (data: any[]) => void;
     setNewTemplate: (data: any[]) => void;
     setSorllList: (data: any[]) => void;
     setCategoryList: (data: any[]) => void;
+    setCategoryTree: (data: any[]) => void;
 };
 const marketStore = create<MarketStore, [['zustand/persist', MarketStore]]>(
     persist(
@@ -20,11 +22,13 @@ const marketStore = create<MarketStore, [['zustand/persist', MarketStore]]>(
             newtemplateList: [],
             sorllList: [],
             categoryList: [],
+            categoryTrees: [],
             setTotal: (data) => set(() => ({ total: data })),
             setTemplate: (data) => set(() => ({ templateList: data })),
             setNewTemplate: (data) => set(() => ({ newtemplateList: data })),
             setSorllList: (data) => set(() => ({ sorllList: data })),
-            setCategoryList: (data) => set(() => ({ categoryList: data }))
+            setCategoryList: (data) => set(() => ({ categoryList: data })),
+            setCategoryTree: (data) => set(() => ({ categoryTrees: data }))
         }),
         {
             name: 'market', // name of the storage key

@@ -96,8 +96,10 @@ function Perform({
     const mdRef: any = useRef([]);
     useEffect(() => {
         if (mdRef.current && mdRef.current.length > 0) {
-            config.steps?.map((item: any, index: number) => {
-                mdRef.current[index].scrollTop = mdRef.current[index].scrollHeight;
+            config?.steps?.map((item: any, index: number) => {
+                if (item.flowStep.response.style !== 'IMAGE' && mdRef.current[index]) {
+                    mdRef.current[index].scrollTop = mdRef.current[index]?.scrollHeight;
+                }
             });
         }
     }, [config?.steps?.map((item: any) => item?.flowStep.response.answer)]);
@@ -106,7 +108,7 @@ function Perform({
     return (
         <Box>
             {config?.steps.length > 1 && (
-                <Box mb={1}>
+                <div>
                     <Button
                         disabled={allDisable() || history}
                         color="secondary"
@@ -121,7 +123,7 @@ function Perform({
                             <ErrorOutline />
                         </IconButton>
                     </Tooltip>
-                </Box>
+                </div>
             )}
             {config?.steps?.map((item: any, steps: number) => (
                 <Card key={item.field + item.steps} sx={{ position: 'relative' }}>
@@ -282,6 +284,7 @@ function Perform({
                                                     changeanswer({ value: e.target.value, index: steps });
                                                 }}
                                                 value={item.flowStep.response.answer}
+                                                placeholder={item.flowStep.response.defaultValue}
                                                 multiline
                                                 minRows={item.flowStep.response.style === 'TEXTAREA' ? 5 : 1}
                                                 maxRows={item.flowStep.response.style === 'TEXTAREA' ? 7 : 2}
